@@ -22,8 +22,8 @@ class ExperimentRegistryManager {
   public register(experiment: Experiment): boolean {
     if (!experiment || !experiment.id) return false;
 
-    // Validate required language keys
-    const requiredLangs: Language[] = ['ar', 'en', 'ku', 'kmr'];
+    // Validate required language keys across all 5 supported languages
+    const requiredLangs: Language[] = ['ar', 'en', 'ku', 'kmr', 'bad'];
     for (const lang of requiredLangs) {
       if (
         !experiment.title?.[lang] ||

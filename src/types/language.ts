@@ -2,7 +2,7 @@
  * Language and Localization Types for TAQ Laboratory
  */
 
-export type Language = 'ar' | 'en' | 'ku' | 'kmr';
+export type Language = 'ar' | 'en' | 'ku' | 'kmr' | 'bad';
 
 export type TextDirection = 'rtl' | 'ltr';
 

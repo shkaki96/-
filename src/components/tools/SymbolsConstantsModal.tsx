@@ -7,46 +7,305 @@ interface SymbolsConstantsModalProps {
   onClose: () => void;
 }
 
-interface ConstantItem {
+interface LocalizedConstantItem {
   symbol: string;
-  nameKey: string;
+  name: Record<string, string>;
   value: string;
   unit: string;
-  category: string;
+  category: Record<string, string>;
 }
 
-const CONSTANTS: ConstantItem[] = [
-  { symbol: 'g', nameKey: 'Standard Acceleration of Gravity', value: '9.80665', unit: 'm/s²', category: 'Mechanics' },
-  { symbol: 'c', nameKey: 'Speed of Light in Vacuum', value: '2.99792 × 10⁸', unit: 'm/s', category: 'Modern Physics' },
-  { symbol: 'h', nameKey: "Planck's Constant", value: '6.62607 × 10⁻³⁴', unit: 'J·s', category: 'Quantum Physics' },
-  { symbol: 'G', nameKey: 'Newtonian Constant of Gravitation', value: '6.67430 × 10⁻¹¹', unit: 'N·m²/kg²', category: 'Mechanics' },
-  { symbol: 'k_e', nameKey: "Coulomb's Constant", value: '8.98755 × 10⁹', unit: 'N·m²/C²', category: 'Electricity' },
-  { symbol: 'e', nameKey: 'Elementary Charge', value: '1.60218 × 10⁻¹⁹', unit: 'C', category: 'Electricity' },
-  { symbol: 'N_A', nameKey: 'Avogadro Constant', value: '6.02214 × 10²³', unit: 'mol⁻¹', category: 'Thermodynamics' },
-  { symbol: 'R', nameKey: 'Molar Gas Constant', value: '8.31446', unit: 'J/(mol·K)', category: 'Thermodynamics' },
-  { symbol: 'k_B', nameKey: 'Boltzmann Constant', value: '1.38064 × 10⁻²³', unit: 'J/K', category: 'Thermodynamics' },
-  { symbol: 'ε_0', nameKey: 'Vacuum Electric Permittivity', value: '8.85419 × 10⁻¹²', unit: 'F/m', category: 'Electricity' },
-  { symbol: 'μ_0', nameKey: 'Vacuum Magnetic Permeability', value: '1.25664 × 10⁻⁶', unit: 'H/m', category: 'Electricity' },
-  { symbol: 'm_e', nameKey: 'Electron Rest Mass', value: '9.10938 × 10⁻³¹', unit: 'kg', category: 'Quantum Physics' },
-  { symbol: 'm_p', nameKey: 'Proton Rest Mass', value: '1.67262 × 10⁻²⁷', unit: 'kg', category: 'Quantum Physics' },
-  { symbol: 'σ', nameKey: 'Stefan-Boltzmann Constant', value: '5.67037 × 10⁻⁸', unit: 'W/(m²·K⁴)', category: 'Thermodynamics' },
+const CONSTANTS: LocalizedConstantItem[] = [
+  {
+    symbol: 'g',
+    name: {
+      en: 'Standard Acceleration of Gravity',
+      ar: 'تسارع الجاذبية الأرضية القياسي',
+      ku: 'تاودانی کێشکردنی زەوی ستاندارد',
+      kmr: 'Lezîna kêşana erdê ya pîvanî',
+      bad: 'تاودانا کێشکرنا ئەردی یا پێڤایی',
+    },
+    value: '9.80665',
+    unit: 'm/s²',
+    category: {
+      en: 'Mechanics',
+      ar: 'الميكانيكا',
+      ku: 'میکانیک',
+      kmr: 'Mîkanîk',
+      bad: 'میکانیک',
+    },
+  },
+  {
+    symbol: 'c',
+    name: {
+      en: 'Speed of Light in Vacuum',
+      ar: 'سرعة الضوء في الفراغ',
+      ku: 'خێرایی ڕووناکی لە بۆشاییدا',
+      kmr: 'Leza şewqê di valahiyê de',
+      bad: 'لەزاتیا رووناهییێ د بۆشاییێ دا',
+    },
+    value: '2.99792 × 10⁸',
+    unit: 'm/s',
+    category: {
+      en: 'Optics & Relativity',
+      ar: 'البصريات والنسبية',
+      ku: 'ڕووناکی و ڕێژەیی',
+      kmr: 'Şewq û Fîzîka Nûjen',
+      bad: 'بینایی و فیزیکا سەردەم',
+    },
+  },
+  {
+    symbol: 'h',
+    name: {
+      en: "Planck's Constant",
+      ar: 'ثابت بلانك الكمي',
+      ku: 'نەگۆڕی کوانتەمی پلانک',
+      kmr: 'Xweciha Plank a kuantemî',
+      bad: 'نەگۆڕێ کوانتەمی یێ پلانک',
+    },
+    value: '6.62607 × 10⁻³⁴',
+    unit: 'J·s',
+    category: {
+      en: 'Quantum Physics',
+      ar: 'فيزياء الكم',
+      ku: 'فیزیکی کوانتەم',
+      kmr: 'Fîzîka Kuantemî',
+      bad: 'فیزیکا کوانتەم',
+    },
+  },
+  {
+    symbol: 'G',
+    name: {
+      en: 'Newtonian Constant of Gravitation',
+      ar: 'ثابت الجذب الكوني العام لنيوتن',
+      ku: 'نەگۆڕی ڕاکێشانی گەردوونی نیوتن',
+      kmr: 'Xweciha hevkêşana gerdûnî ya Niyoton',
+      bad: 'نەگۆڕێ کێشکرنا گەردوونی یێ نیوتن',
+    },
+    value: '6.67430 × 10⁻¹¹',
+    unit: 'N·m²/kg²',
+    category: {
+      en: 'Mechanics',
+      ar: 'الميكانيكا',
+      ku: 'میکانیک',
+      kmr: 'Mîkanîk',
+      bad: 'میکانیک',
+    },
+  },
+  {
+    symbol: 'k_e',
+    name: {
+      en: "Coulomb's Constant",
+      ar: 'ثابت كولوم الكهروستاتيكي',
+      ku: 'نەگۆڕی کارۆڕاکێشانی کوڵۆم',
+      kmr: 'Xweciha Coulomb a elektrostasîkî',
+      bad: 'نەگۆڕێ کۆلۆم یێ کارۆسەکەن',
+    },
+    value: '8.98755 × 10⁹',
+    unit: 'N·m²/C²',
+    category: {
+      en: 'Electricity',
+      ar: 'الكهرباء',
+      ku: 'کارەبا',
+      kmr: 'Elektrîk û Magnetîk',
+      bad: 'کارەب و موگناتیسی',
+    },
+  },
+  {
+    symbol: 'e',
+    name: {
+      en: 'Elementary Charge',
+      ar: 'الشحنة الكهربائية الأولية',
+      ku: 'بارگەی سەرەتایی ئەلیکترۆن',
+      kmr: 'Bara bingehîn a elektronê',
+      bad: 'بارگەیێ سەرەتایی یێ ئەلیکترۆنی',
+    },
+    value: '1.60218 × 10⁻¹⁹',
+    unit: 'C',
+    category: {
+      en: 'Electricity',
+      ar: 'الكهرباء',
+      ku: 'کارەبا',
+      kmr: 'Elektrîk û Magnetîk',
+      bad: 'کارەب و موگناتیسی',
+    },
+  },
+  {
+    symbol: 'N_A',
+    name: {
+      en: 'Avogadro Constant',
+      ar: 'عدد وثابت أفوغادرو',
+      ku: 'نەگۆڕی ئەڤۆگادرۆ',
+      kmr: 'Xweciha Avogadro',
+      bad: 'نەگۆڕێ ئەڤۆگادرۆ',
+    },
+    value: '6.02214 × 10²³',
+    unit: 'mol⁻¹',
+    category: {
+      en: 'Thermodynamics',
+      ar: 'الديناميكا الحرارية',
+      ku: 'داینامیکی گەرمی',
+      kmr: 'Termodînamîk',
+      bad: 'تێرمۆدینامیک',
+    },
+  },
+  {
+    symbol: 'R',
+    name: {
+      en: 'Molar Gas Constant',
+      ar: 'الثابت العام للغازات المثالية',
+      ku: 'نەگۆڕی گشتی گازەکان',
+      kmr: 'Xweciha giştî ya gaza nimûneyî',
+      bad: 'نەگۆڕێ گشتی یێ گازا نموونەیی',
+    },
+    value: '8.31446',
+    unit: 'J/(mol·K)',
+    category: {
+      en: 'Thermodynamics',
+      ar: 'الديناميكا الحرارية',
+      ku: 'داینامیکی گەرمی',
+      kmr: 'Termodînamîk',
+      bad: 'تێرمۆدینامیک',
+    },
+  },
+  {
+    symbol: 'k_B',
+    name: {
+      en: 'Boltzmann Constant',
+      ar: 'ثابت بولتزمان الإحصائي',
+      ku: 'نەگۆڕی بۆڵتزمان',
+      kmr: 'Xweciha Boltzmann',
+      bad: 'نەگۆڕێ بۆڵتزمان',
+    },
+    value: '1.38064 × 10⁻²³',
+    unit: 'J/K',
+    category: {
+      en: 'Thermodynamics',
+      ar: 'الديناميكا الحرارية',
+      ku: 'داینامیکی گەرمی',
+      kmr: 'Termodînamîk',
+      bad: 'تێرمۆدینامیک',
+    },
+  },
+  {
+    symbol: 'ε_0',
+    name: {
+      en: 'Vacuum Electric Permittivity',
+      ar: 'سماحية الفراغ الكهربائية',
+      ku: 'ڕێپێدانی کارەبایی بۆشایی',
+      kmr: 'Têhilandina elektrîkî ya valahiyê',
+      bad: 'رێپێدانا کارەبایی یا بۆشاییێ',
+    },
+    value: '8.85419 × 10⁻¹²',
+    unit: 'F/m',
+    category: {
+      en: 'Electricity',
+      ar: 'الكهرباء',
+      ku: 'کارەبا',
+      kmr: 'Elektrîk û Magnetîk',
+      bad: 'کارەب و موگناتیسی',
+    },
+  },
+  {
+    symbol: 'μ_0',
+    name: {
+      en: 'Vacuum Magnetic Permeability',
+      ar: 'النفاذية المغناطيسية للفراغ',
+      ku: 'تێپەڕپێدانی موگناتیسی بۆشایی',
+      kmr: 'Derbaskirina magnetîkî ya valahiyê',
+      bad: 'تێپەڕپێدانا موگناتیسی یا بۆشاییێ',
+    },
+    value: '1.25664 × 10⁻⁶',
+    unit: 'H/m',
+    category: {
+      en: 'Electricity',
+      ar: 'الكهرباء',
+      ku: 'کارەبا',
+      kmr: 'Elektrîk û Magnetîk',
+      bad: 'کارەب و موگناتیسی',
+    },
+  },
+  {
+    symbol: 'm_e',
+    name: {
+      en: 'Electron Rest Mass',
+      ar: 'كتلة سكون الإلكترون',
+      ku: 'بارستەی سەکۆنی ئەلیکترۆن',
+      kmr: 'Senga elektrona bêliv',
+      bad: 'بارستایا سەکۆن یا ئەلیکترۆنی',
+    },
+    value: '9.10938 × 10⁻³¹',
+    unit: 'kg',
+    category: {
+      en: 'Quantum Physics',
+      ar: 'فيزياء الكم',
+      ku: 'فیزیکی کوانتەم',
+      kmr: 'Fîzîka Kuantemî',
+      bad: 'فیزیکا کوانتەم',
+    },
+  },
+  {
+    symbol: 'm_p',
+    name: {
+      en: 'Proton Rest Mass',
+      ar: 'كتلة سكون البروتون',
+      ku: 'بارستەی سەکۆنی پرۆتۆن',
+      kmr: 'Senga protona bêliv',
+      bad: 'بارستایا سەکۆن یا پرۆتۆنی',
+    },
+    value: '1.67262 × 10⁻²⁷',
+    unit: 'kg',
+    category: {
+      en: 'Quantum Physics',
+      ar: 'فيزياء الكم',
+      ku: 'فیزیکی کوانتەم',
+      kmr: 'Fîzîka Kuantemî',
+      bad: 'فیزیکا کوانتەم',
+    },
+  },
+  {
+    symbol: 'σ',
+    name: {
+      en: 'Stefan-Boltzmann Constant',
+      ar: 'ثابت ستيفان-بولتزمان الإشعاعي',
+      ku: 'نەگۆڕی ستیفان-بۆڵتزمان',
+      kmr: 'Xweciha Stefan-Boltzmann a tîrêjdanê',
+      bad: 'نەگۆڕێ ستیفان-بۆڵتزمان یێ تیشکدانێ',
+    },
+    value: '5.67037 × 10⁻⁸',
+    unit: 'W/(m²·K⁴)',
+    category: {
+      en: 'Thermodynamics',
+      ar: 'الديناميكا الحرارية',
+      ku: 'داینامیکی گەرمی',
+      kmr: 'Termodînamîk',
+      bad: 'تێرمۆدینامیک',
+    },
+  },
 ];
 
 export const SymbolsConstantsModal: React.FC<SymbolsConstantsModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [search, setSearch] = useState('');
 
   if (!isOpen) return null;
 
-  const filtered = CONSTANTS.filter(
-    (item) =>
-      item.symbol.toLowerCase().includes(search.toLowerCase()) ||
-      item.nameKey.toLowerCase().includes(search.toLowerCase()) ||
-      item.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const currentLang = language || 'kmr';
+
+  const filtered = CONSTANTS.filter((item) => {
+    const name = item.name[currentLang] || item.name['kmr'] || item.name['ku'] || item.name['en'] || '';
+    const cat = item.category[currentLang] || item.category['kmr'] || item.category['ku'] || item.category['en'] || '';
+    const q = search.toLowerCase();
+
+    return (
+      item.symbol.toLowerCase().includes(q) ||
+      name.toLowerCase().includes(q) ||
+      cat.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
@@ -84,29 +343,34 @@ export const SymbolsConstantsModal: React.FC<SymbolsConstantsModalProps> = ({
         {/* Table Content */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-950/50">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {filtered.map((c) => (
-              <div
-                key={c.symbol}
-                className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between gap-3 hover:border-blue-500/40 transition-colors"
-              >
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-base font-bold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-                      {c.symbol}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      {c.category}
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-200 font-medium">{c.nameKey}</div>
-                </div>
+            {filtered.map((c) => {
+              const name = c.name[currentLang] || c.name['kmr'] || c.name['ku'] || c.name['en'];
+              const cat = c.category[currentLang] || c.category['kmr'] || c.category['ku'] || c.category['en'];
 
-                <div className="text-right font-mono shrink-0">
-                  <div className="text-xs font-bold text-blue-400">{c.value}</div>
-                  <div className="text-[10px] text-slate-400">{c.unit}</div>
+              return (
+                <div
+                  key={c.symbol}
+                  className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between gap-3 hover:border-blue-500/40 transition-colors"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-base font-bold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" dir="ltr">
+                        {c.symbol}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        {cat}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-200 font-medium">{name}</div>
+                  </div>
+
+                  <div className="text-right font-mono shrink-0" dir="ltr">
+                    <div className="text-xs font-bold text-blue-400">{c.value}</div>
+                    <div className="text-[10px] text-slate-400">{c.unit}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

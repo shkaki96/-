@@ -2,8 +2,85 @@ import { Experiment } from '../../types/experiment';
 import { PROTOTYPE_EXPERIMENT } from './prototypeExperiment';
 
 /**
+ * Official Badini Titles Mapping for all 70 TAQ experiments
+ * Grounded in authentic Kurdish (Badini) physics curriculum terminology.
+ */
+const BADINI_TITLES_MAP: Record<number, string> = {
+  1: 'ئیش، گەرمی و یاسایا ئێکێ یا تێرمۆدینامیکێ',
+  2: 'بەرچاڤکێن پزیشکی و شیانا هاوێنەی',
+  3: 'پێریسکۆپ و یاسایا ڤەگەڕیانێ',
+  4: 'کارەبا سەکەن و یاسایا کۆلۆمی',
+  5: 'پێشبڕکێیا شلیسکۆکان و یاسایێن لێکخشاندنێ',
+  6: 'گەهاندنا گەرمییێ و یاسایا فۆریێ',
+  7: 'هه‌ڤسه‌نگیا ئالیکۆکێ و هه‌ڤسه‌نگیا عەزمی',
+  8: 'هاندانا کارۆموگناتیسی و یاسایا فارادای',
+  9: 'لیچقی، یاسایا ستۆکس و لەزاتیا دووماهییێ',
+  10: 'ئاستێ لار و ئامیرێن سادە',
+  11: 'پێشگرێن مەتری و گوهۆڕینێن زانستی',
+  12: 'فشار، شێواندن و موکۆمیا یۆنگ',
+  13: 'پرەنسیپێ بێرنۆلی و رێڕەوێ ڤێنتۆری',
+  14: 'ئاوینێن گۆشەدار و وێنەیێن ڤەگەڕیانا زۆر',
+  15: 'ئاوینێن گۆیی یێن چەماو (قۆقز و قۆل)',
+  16: 'هاوێنەیێن تەنک و هاوکێشەیا دووریا بؤری',
+  17: 'جەمسەرگیریا رووناهییێ و یاسایا مالوس',
+  18: 'بەلاڤبوونا رووناهییێ و یاسایا رالی یا بەلاڤبوونێ',
+  19: 'درێژیا کەڤانی، رادیان و لڤینا گۆشەیی',
+  20: 'عەزمێ سرەوتنێ و دینامیکا خولانەڤێ',
+  21: 'ناڤەندا بارستایی یا سیستەم و تەنان',
+  22: 'پاراستنا وزێ د پەندۆلیدا',
+  23: 'دەمێ خولێ و تاودانا کێشکرنێ د پەندۆلی دا',
+  24: 'لڤینا هاڤێتووکی و رێڕەوێ مەودایی',
+  25: 'یاسایا هووک و لەرینەڤا هارمۆنیکی یا زەمبەرەکی',
+  26: 'پاراستنا تەوژمێ هێلی و پێێکدادان',
+  27: 'کینماتیکا کەفتنا سەربەست و تاودانا کێشکرنێ',
+  28: 'دەنگڤەدان د بۆریێن ڤەکری و داخستیدا',
+  29: 'لەزاتیا دەنگی دگەل دەنگڤەدانا ستوونا ئاڤێ',
+  30: 'بیناییا پێلی و دەستتێوەردانا درزێ دوانە یێ یۆنگ',
+  31: 'بیاڤێ موگناتیسی و هێزا لۆرێنتز ل سەر بارگەیان',
+  32: 'شەبەنگێ دەرهاڤێتنا ئەتۆمی و دەربازبوونێن کوانتەمی',
+  33: 'زڤرۆکێن کارەبێ، یاسایا ئۆمی و بەلاڤبوونا شیانێ',
+  34: 'پرەنسیپێ ئەرخەمیدس و هێزا سەرئێخەر',
+  35: 'یاسایا گازی نموونەیی و بارێ تێرمۆدینامیکی',
+  36: 'بینایی و یاسایا سنێل یا شکانەڤێ',
+  37: 'ئاڤاکرنا ئەتۆمێ و خشتەیێ خولی',
+  38: 'ئاڤاکرنا ناڤۆکێ و وزا گرێدانێ',
+  39: 'تاقیکرنا رەزەرفۆرد بۆ بەلاڤبوونا ئەلفا',
+  40: 'کارلێکا گەردان دگەل فۆتۆنێن رووناهییێ',
+  41: 'دیتنا رەنگان و تێکەلکرنا کۆمکەرا RGB',
+  42: 'تاقیگەها بارگەگری و وزا کارەبایی یا عەمبارکری',
+  43: 'بارگەیێن کارەبایی، هێڵێن بیاڤی و ئەرک',
+  44: 'بەرگریا تێلێ و یاسایا بەرگریا تایبەت',
+  45: 'کێشکرن و میکانیکا خولگەهان',
+  46: 'یاسایێن کێپلەر بۆ لڤینا گرستێران',
+  47: 'یاریگەها سکەیتێ و گوهۆڕینێن وزێ',
+  48: 'زنجیرا فۆریێ و پێکهاتنا پێلێن هارمۆنیک',
+  49: 'پێل ل سەر دەزی و لەزاتیا قۆناغێ',
+  50: 'بارێن ماددەی، گوهۆڕینێن باری و گەرمیا ڤەشارتی',
+  51: 'بەلاڤبوونا گازان و یاسایا گراهام بۆ دەرچوونێ',
+  52: 'لڤینا خولانەڤێ و کۆمە عەزم',
+  53: 'مۆدێلێن ئەتۆما هایدرۆجینێ',
+  54: 'باکێجا ئاڤاکرنا زڤرۆکێن کارەبێ (پێشکەفتی)',
+  55: 'موەلیدا کارەبێ (جێنەرەیتەر)',
+  56: 'موگناتیس و قیبلەنما',
+  57: 'موگناتیس و کارۆموگناتیس',
+  58: 'تاقیگەها هێزا کێشکرنێ',
+  59: 'کۆمەلا من یا رۆژێ و میکانیکا فرە-تەنان',
+  60: 'شێوازێن وزێ و گوهۆڕینێن وێ',
+  61: 'مودێن سروشتی و فریکوێنسێن دەنگڤەدانێ',
+  62: 'هێز و لڤین: بنەما',
+  63: 'تایبەتمەندیێن گازان و یاسایا پەستانا لڤینێ',
+  64: 'بەلاڤبوونا گەردی و یاسایا ئێکێ یا فیک',
+  65: 'شەبەنگێ لەشێ رەش و یاسایێن پلانک و ڤین',
+  66: 'کاریگەریا دۆپلەر و گوهاستنا دەنگی',
+  67: 'گوهاستەرێ کارەبێ و یاسایا هاندانا هەڤبەش',
+  68: 'دیاردەیا کارۆرووناهی و یاسایا کوانتەمی یا ئەینشتاین',
+  69: 'هەلوەشینا تیشکدەر و یاسایا نیڤەژینا ناڤۆکی',
+  70: 'پێڤانا گەرمییێ و یاسایا هه‌ڤسه‌نگیا گەرمیێ',
+};
+
+/**
  * Helper function to instantiate structured experiments for the Official TAQ 70 Experiment Catalog.
- * Guarantees strict localization across English, Arabic, Sorani Kurdish, and Kurmanji.
+ * Guarantees strict localization across English, Arabic, Sorani Kurdish, Kurmanji, and Badini.
  */
 function createExperiment(
   code: number,
@@ -14,73 +91,84 @@ function createExperiment(
   titleAr?: string,
   titleKu?: string,
   titleKmr?: string,
+  titleBad?: string,
   descEn?: string,
   descAr?: string,
   descKu?: string,
-  descKmr?: string
+  descKmr?: string,
+  descBad?: string
 ): Experiment {
   const arTitle = titleAr || titleEn;
   const kuTitle = titleKu || titleEn;
   const kmrTitle = titleKmr || titleEn;
+  const badTitle = titleBad || BADINI_TITLES_MAP[code] || titleEn;
 
   const defaultDescEn = descEn || `Interactive scientific study of ${titleEn} governed by ${physicalLaw}.`;
   const defaultDescAr = descAr || `دراسة علمية تفاعلية لـ ${arTitle} الخاضعة للقانون الفيزيائي ${physicalLaw}.`;
   const defaultDescKu = descKu || `لێکۆڵینەوەی زانستی کارلێککارانە لە ${kuTitle} بەپێی یاسای فیزیکی ${physicalLaw}.`;
-  const defaultDescKmr = descKmr || `Lêkolîna zanistî ya înteraktîf a ${kmrTitle} li ser bingeha یاsaya fîzîkî ${physicalLaw}.`;
+  const defaultDescKmr = descKmr || `Lêkolîna zanistî ya înteraktîf a ${kmrTitle} li ser bingeha yasaya fîzîkî ${physicalLaw}.`;
+  const defaultDescBad = descBad || `ڤەکۆلینا زانستی یا کارلێککەر ل سەر ${badTitle} ل دویڤ یاسایا فیزیکی ${physicalLaw}.`;
 
   return {
     id: `exp-${String(code).padStart(3, '0')}-${slug}`,
     codeNumber: code,
     category,
     physicalLaw,
-    title: { en: titleEn, ar: arTitle, ku: kuTitle, kmr: kmrTitle },
-    description: { en: defaultDescEn, ar: defaultDescAr, ku: defaultDescKu, kmr: defaultDescKmr },
+    title: { en: titleEn, ar: arTitle, ku: kuTitle, kmr: kmrTitle, bad: badTitle },
+    description: { en: defaultDescEn, ar: defaultDescAr, ku: defaultDescKu, kmr: defaultDescKmr, bad: defaultDescBad },
     howItWorks: {
       en: `Simulates physical interactions based on ${physicalLaw}.`,
       ar: `محاكاة التفاعلات الفيزيائية بناءً على ${physicalLaw}.`,
       ku: `هاوشێوەسازی کارلێکە فیزیکییەکان لەسەر بنەمای ${physicalLaw}.`,
       kmr: `Simulasyona têkiliyên fîzîkî li ser bingeha ${physicalLaw}.`,
+      bad: `سیمیولەیشنا کارلێکێن فیزیکی دکەت ل سەر بنەمایێ ${physicalLaw}.`,
     },
     whatHappened: {
       en: 'System variables respond dynamically to parameter changes.',
       ar: 'تتفاعل متغيرات النظام بشكل ديناميكي مع تغيير المعايير.',
       ku: 'گۆڕاوەکانی سیستمەکە بە شێوەیەکی دیاریکراو وەڵام دەدەنەوە.',
       kmr: 'Guherbarên sîstemê bi rengekî dînamîk bersivê didin.',
+      bad: 'گوهۆڕۆکێن سیستەمی ب شێوەیەکێ دینامیکی بەرسڤا گوهۆڕینا پارامیتەران ددەن.',
     },
     result: {
       en: 'Experimental measurements conform strictly to theoretical predictions.',
       ar: 'تتوافق القياسات التجريبية بدقة مع التوقعات النظرية.',
       ku: 'پێوانە ئەزموونییەکان بە تەواوی لەگەڵ پێشبینییە تیۆرییەکان دەگونجێن.',
-      kmr: 'Pîvanên ezmûnî bi temamî bi pêşbîniyên teorîk re li hev dikin.',
+      kmr: 'Pîvanên ezmûnî bi temamî bi پێşbîniyên teorîk re li hev dikin.',
+      bad: 'پێڤانێن تاقیکرنێ ب دروستی دگەل پێشبینیێن بیردۆزی دگونجن.',
     },
     inputs: {
       en: ['Primary Variable', 'Environment Constant'],
       ar: ['المتغير الأساسي', 'ثابت البيئة'],
       ku: ['گۆڕاوی سەرەکی', 'نەگۆڕی ژینگە'],
       kmr: ['Guherbarê Serekî', 'Neqora Jîngehê'],
+      bad: ['گوهۆڕۆکێ سەرەکی', 'نەگۆڕێ ژینگەهێ'],
     },
     outputs: {
       en: ['Response Value', 'System Energy'],
       ar: ['قيمة الاستجابة', 'طاقة النظام'],
       ku: ['نرخی وەڵامدانەوە', 'توانای سیستم'],
       kmr: ['Nirxa Bersivê', 'Anarşiya Sîstemê'],
+      bad: ['بهایێ بەرسڤدانێ', 'وزا سیستەمی'],
     },
     explanation: {
       en: `Theoretical principles behind ${titleEn} governed by ${physicalLaw}.`,
       ar: `المبادئ النظرية وراء ${arTitle} الخاضعة لقانون ${physicalLaw}.`,
       ku: `پڕەنسیپە تیۆرییەکانی دواوەی ${kuTitle} کە بەپێی ${physicalLaw} کاردەکەن.`,
       kmr: `Prensîbên teorîk ên li pişt ${kmrTitle} yên ku ji hêla ${physicalLaw} ve tên birêvebirin.`,
+      bad: `پرەنسیپێن بیردۆزی یێن ل پشت ${badTitle} یێن کو ب رێکا ${physicalLaw} دهێنە برێڤەبرن.`,
     },
     procedure: {
       en: ['Adjust parameters', 'Observe output response', 'Record data points'],
       ar: ['ضبط المعايير', 'ملاحظة استجابة المخرجات', 'تسجيل نقاط البيانات'],
       ku: ['ڕێکخستنی پارامیتەرەکان', 'ملاحظەکردنی دەرئەنجام', 'تۆمارکردنی زانیارییەکان'],
       kmr: ['Sazkirina parametreyan', 'Çavdêriya encaman', 'Torkirina daneyan'],
+      bad: ['رێکخستنا پارامیتەران', 'چاڤدێریکرنا بەرسڤا دەرکەفتیان', 'تۆمارکرنا خالێن داتایێ'],
     },
     parameters: [
       {
         id: 'var1',
-        label: { en: 'Primary Parameter', ar: 'المعيار الأساسي', ku: 'پارامیتەری سەرەکی', kmr: 'Parametreya Serekî' },
+        label: { en: 'Primary Parameter', ar: 'المعيار الأساسي', ku: 'پارامیتەری سەرەکی', kmr: 'Parametreya Serekî', bad: 'پارامیتەرێ سەرەکی' },
         unit: 'unit',
         min: 1,
         max: 100,
@@ -91,7 +179,7 @@ function createExperiment(
     outputMetrics: [
       {
         id: 'out1',
-        label: { en: 'Output Metric', ar: 'مقياس المخرجات', ku: 'پێوەری دەرئەنجام', kmr: 'Pîvana Encamê' },
+        label: { en: 'Output Metric', ar: 'مقياس المخرجات', ku: 'پێوەری دەرئەنجام', kmr: 'Pîvana Encamê', bad: 'پێڤەرا دەرئەنجامی' },
         unit: 'SI',
         symbol: 'R',
       },

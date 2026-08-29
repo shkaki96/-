@@ -306,7 +306,9 @@ export const RealtimeGraph: React.FC<RealtimeGraphProps> = ({
       ctx.font = '12px system-ui, sans-serif';
       ctx.textAlign = 'center';
       const emptyMsg =
-        language === 'ar'
+        language === 'bad'
+          ? 'دابگرە "دەستپێبکە" بۆ دیتنا هێلکاریێ'
+          : language === 'ar'
           ? 'اضغط "ابدأ" لعرض الرسم البياني المباشر'
           : language === 'ku'
           ? 'دابگرە "دەستپێبکە" بۆ بینینی هێڵکاری'
@@ -334,7 +336,9 @@ export const RealtimeGraph: React.FC<RealtimeGraphProps> = ({
   };
 
   const timeLabel =
-    language === 'ar'
+    language === 'bad'
+      ? 'دەم (چ)'
+      : language === 'ar'
       ? 'الزمن (ث)'
       : language === 'ku'
       ? 'کات (چ)'
@@ -372,7 +376,15 @@ export const RealtimeGraph: React.FC<RealtimeGraphProps> = ({
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap flex items-center gap-1 mr-1">
             <BarChart2 className="w-3 h-3" />
-            {language === 'ar' ? 'المتغير:' : 'Variable:'}
+            {language === 'bad'
+              ? 'گوهۆڕۆک:'
+              : language === 'ar'
+              ? 'المتغير:'
+              : language === 'ku'
+              ? 'گۆڕاو:'
+              : language === 'kmr'
+              ? 'Guhêrbar:'
+              : 'Variable:'}
           </span>
           {availableMetrics.map((m) => {
             const isSelected = m.id === selectedMetricId;

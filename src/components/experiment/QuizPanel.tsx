@@ -2,24 +2,23 @@ import React, { useState, useMemo } from 'react';
 import { Experiment } from '../../types/experiment';
 import { useTranslation } from '../../i18n/useTranslation';
 import {
-  HelpCircle,
+  Brain,
   CheckCircle2,
   XCircle,
   RotateCcw,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
   Award,
   ChevronRight,
   ChevronLeft,
-  ChevronDown,
-  ChevronUp,
-  Brain,
-  Sparkles,
 } from 'lucide-react';
 
 interface QuizPanelProps {
   experiment: Experiment;
 }
 
-export interface Question {
+interface Question {
   id: number;
   questionText: string;
   options: string[];
@@ -28,10 +27,8 @@ export interface Question {
 }
 
 export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
-  const { language, getLocalizedText } = useTranslation();
+  const { language } = useTranslation();
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
-
-  // Quiz state
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -40,148 +37,316 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
   >([]);
   const [isQuizFinished, setIsQuizFinished] = useState<boolean>(false);
 
-  // Generate experiment-tailored questions based on category and physics
-  const questions = useMemo<Question[]>(() => {
+  // Robust multi-language resolver helper
+  const loc = (texts: { ar: string; en: string; ku: string; kmr: string; bad: string }): string => {
+    if (language === 'bad') return texts.bad;
+    if (language === 'ku') return texts.ku;
+    if (language === 'kmr') return texts.kmr;
+    if (language === 'ar') return texts.ar;
+    return texts.en;
+  };
+
+  // Generate physics quiz questions dynamically based on experiment characteristics
+  const questions: Question[] = useMemo(() => {
     const id = experiment.id.toLowerCase();
     const cat = experiment.category;
 
-    // 1. Simple Pendulum / Harmonic Motion
+    // 1. Simple Harmonic Motion / Pendulum
     if (id.includes('pendulum') || id.includes('harmonic')) {
       return [
         {
           id: 1,
-          questionText:
-            language === 'ar'
-              ? 'إذا تم زيادة طول خيط البندول أربعة أضعاف (4L)، فماذا يحدث للزمن الدوري (T)؟'
-              : 'If the length of a pendulum is quadrupled (4L), what happens to its period (T)?',
-          options:
-            language === 'ar'
-              ? ['يزداد إلى الضعف (2T)', 'يتضاعف أربعة أضعاف (4T)', 'ينخفض إلى النصف (0.5T)', 'يبقى ثابتاً دون تغيير']
-              : ['It doubles (2T)', 'It quadruples (4T)', 'It halves (0.5T)', 'It remains unchanged'],
+          questionText: loc({
+            ar: 'على ماذا يعتمد الزمن الدوري (T) للبندول البسيط في حالة الإزاحات الصغيرة؟',
+            bad: 'ل سەر چی دەمێ خۆلا تەمام (T) یا پەندۆلێ سادە د گۆشەیێن بچووک دا د راوەستیت؟',
+            ku: 'کاتی خولی تەواو (T) بۆ پاندۆڵی سادە لە گۆشە بچووکەکاندا بەستراوە بە چییەوە؟',
+            kmr: 'Dema dora temam (T) ji bo pendula sade di goşeyên piçûk de bi çi ve girêdayî ye?',
+            en: 'What determines the period (T) of a simple pendulum at small angle displacements?',
+          }),
+          options: [
+            loc({
+              ar: 'طول الخيط وتسارع الجاذبية فقط',
+              bad: 'ب تنێ درێژیا بەندی و تاودانا کێشکرنا عەردی',
+              ku: 'تەنها درێژیی پەت و تاودانی کێشکردنی زەوی',
+              kmr: 'Tenê dirêjahiya ben û lezkirina kêşana erdê',
+              en: 'String length and local gravitational acceleration only',
+            }),
+            loc({
+              ar: 'كتلة الثقل المعلق وسعة الاهتزاز',
+              bad: 'بارستەیا تۆپکا هەلاویستی و فراوانیا هەژانێ',
+              ku: 'بارستایی تۆپەکە و فراوانی لەرینەوە',
+              kmr: 'Masa giranîyê û firehiya hejandinê',
+              en: 'Mass of the bob and initial amplitude',
+            }),
+            loc({
+              ar: 'لون الخيط ومادته الصانعة',
+              bad: 'رەنگێ بەندی و ماددێ چێکەرێ وێ',
+              ku: 'ڕەنگی پەت و جۆری ماددەکەی',
+              kmr: 'Rengê ben û cureyê madeyê',
+              en: 'Color and material of the string',
+            }),
+            loc({
+              ar: 'مساحة سطح غرفة التجربة',
+              bad: 'رووبەرێ ژوورا تاقیکرنێ',
+              ku: 'ڕووبەری ژووری تاقیکردنەوە',
+              kmr: 'Rûbera odeya ceribandinê',
+              en: 'Surface area of the room',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'طبقاً لمعادلة الزمن الدوري T = 2π√(L/g)، يتناسب T طردياً مع جذر الطول (√L). جذر 4 يساوي 2، لذا يتضاعف الزمن الدوري مرتين.'
-              : 'According to T = 2π√(L/g), the period T is proportional to √L. √4 = 2, so the period doubles.',
+          explanation: loc({
+            ar: 'الزمن الدوري للبندول T = 2π√(L/g) يعتمد حصرياً على طول الخيط (L) والجاذبية (g) ومستقل تماماً عن الكتلة والسعة.',
+            bad: 'دەمێ خۆلا تەمام T = 2π√(L/g) ب تنێ ب درێژیا بەندی (L) و کێشکرنا عەردی (g) ڤە گرێدایە و ژ بارستەیێ سەربەخۆیە.',
+            ku: 'کاتی خولی پاندۆڵ T = 2π√(L/g) تەنها بەستراوە بە درێژی پەت (L) و هێزی کێشکردن (g) و سەربەخۆیە لە بارستایی.',
+            kmr: 'Dema dorê T = 2π√(L/g) tenê bi dirêjahiya ben û kêşanê ve girêdayî ye.',
+            en: 'Pendulum period T = 2π√(L/g) depends solely on string length (L) and gravity (g), and is mass-independent.',
+          }),
         },
         {
           id: 2,
-          questionText:
-            language === 'ar'
-              ? 'هل تؤثر زيادة كتلة ثقل البندول (m) على الزمن الدوري (T) عند ثبات الطول والجاذبية؟'
-              : 'Does increasing the mass of the bob (m) affect the period (T) when length and gravity are constant?',
-          options:
-            language === 'ar'
-              ? ['لا، الكتلة لا تؤثر إطلاقاً على الزمن الدوري', 'نعم، يزداد الزمن الدوري بزيادة الكتلة', 'نعم، يقل الزمن الدوري بزيادة الكتلة', 'ينعدم الزمن الدوري']
-              : ['No, mass has no effect on the period', 'Yes, period increases with mass', 'Yes, period decreases with mass', 'Period becomes zero'],
+          questionText: loc({
+            ar: 'إذا قمنا بمضاعفة طول خيط البندول أربع مرات (4L)، فكم يصبح الزمن الدوري (T)؟',
+            bad: 'ئەگەر درێژیا بەندێ پەندۆلی (L) چوار جاران بهێتە زێدەکرن (4L)، دەمێ خۆلێ (T) چ لێ دهێت؟',
+            ku: 'ئەگەر درێژی پەتی پاندۆڵەکە چوار هێندە زیاد بکەین (4L)، کاتی خول (T) چۆن دەگۆڕێت؟',
+            kmr: 'Heke em dirêjahiya benê pendulê çar qat zêde bikin (4L), dema dorê (T) çi dibe?',
+            en: 'If the pendulum length is increased 4 times (4L), what happens to its period (T)?',
+          }),
+          options: [
+            loc({
+              ar: 'يتضاعف مرتين فقط (2T)',
+              bad: 'دوو جاران زێدە دبیت (2T)',
+              ku: 'دوو هێندە زیاد دەکات (2T)',
+              kmr: 'Du qat zêde dibe (2T)',
+              en: 'Doubles (2T)',
+            }),
+            loc({
+              ar: 'يتضاعف أربع مرات (4T)',
+              bad: 'چوار جاران زێدە دبیت (4T)',
+              ku: 'چوار هێندە زیاد دەکات (4T)',
+              kmr: 'Çar qat zêde dibe (4T)',
+              en: 'Quadruples (4T)',
+            }),
+            loc({
+              ar: 'يقل إلى النصف (0.5T)',
+              bad: 'کێم دبیت بۆ نیڤێ (0.5T)',
+              ku: 'کەم دەکات بۆ نیوە (0.5T)',
+              kmr: 'Dadikeve nîvî (0.5T)',
+              en: 'Halves (0.5T)',
+            }),
+            loc({
+              ar: 'يبقى ثابتاً دون تغير',
+              bad: 'بێ گوهۆڕین دمینیت',
+              ku: 'بە جێگیری دەمێنێتەوە',
+              kmr: 'Wek xwe dimîne',
+              en: 'Remains unchanged',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'الكتلة لا تظهر في قانون البندول T = 2π√(L/g) لأن زيادة الكتلة تزيد القصور الذاتي وقوة الجاذبية بنسب متساوية كلياً.'
-              : 'Mass does not appear in T = 2π√(L/g) because mass increases inertia and gravitational force equally.',
+          explanation: loc({
+            ar: 'الزمن الدوري يتناسب طردياً مع جذر الطول: √4 = 2، وبالتالي يتضاعف الزمن الدوري مرتين.',
+            bad: 'دەمێ خۆلێ ب شێوەیێ راستەوانە دگەل رەگێ دووجایێ درێژیێ دگۆهۆڕیت: √4 = 2، لەوما دەمێ خۆلێ دوو جاران زێدە دبیت.',
+            ku: 'کاتی خول بەشێوەی ڕاستەوانە لەگەڵ ڕەگی دووجای درێژی دەگۆڕێت: √4 = 2، کەواتە کاتی خول دوو هێندە دەبێت.',
+            kmr: 'Dema dorê bi koka çargoşeyê ya dirêjahiyê ve têkildar e: √4 = 2.',
+            en: 'Periodic time scales with the square root of length: √4 = 2, so the period doubles.',
+          }),
         },
         {
           id: 3,
-          questionText:
-            language === 'ar'
-              ? 'صح أم خطأ: بالنسبة للزوايا الصغيرة (θ < 15°)، تعتبر حركة البندول حركة توافقية بسيطة (SHM).'
-              : 'True or False: For small displacement angles (θ < 15°), pendulum motion is Simple Harmonic Motion (SHM).',
-          options:
-            language === 'ar'
-              ? ['صحيح (True)', 'خطأ (False)']
-              : ['True', 'False'],
+          questionText: loc({
+            ar: 'ما هو تأثير زيادة كتلة الثقل (m) على الزمن الدوري للبندول؟',
+            bad: 'کارتێکرنا زێدەکرنا بارستەیا تەنی (m) ل سەر دەمێ خۆلا پەندۆلی چییە؟',
+            ku: 'کاریگەری زیادکردنی بارستایی تەن (m) لەسەر کاتی خولی پاندۆڵ چییە؟',
+            kmr: 'Bandora zêdekirina barsteyê (m) li ser dema dora pendulê çi ye?',
+            en: 'What effect does increasing bob mass (m) have on pendulum period (T)?',
+          }),
+          options: [
+            loc({
+              ar: 'لا يؤثر إطلاقاً ويبقى الزمن الدوري ثابتاً',
+              bad: 'چ کارتێکرنێ ناکەت و دەمێ خۆلێ ناگوهۆڕیت',
+              ku: 'هیچ کاریگەرییەکی نییە و کاتی خول بە نەگۆڕی دەمێنێتەوە',
+              kmr: 'Tu bandorê nake û dema dorê wek xwe dimîne',
+              en: 'No effect whatsoever; period remains constant',
+            }),
+            loc({
+              ar: 'يزداد الزمن الدوري بنسبة خطية',
+              bad: 'دەمێ خۆلێ ب شێوەیەکێ هێڵی زێدە دبیت',
+              ku: 'کاتی خول بەشێوەی هێڵی زیاد دەکات',
+              kmr: 'Dema dorê bi awayekî xêzî zêde dibe',
+              en: 'Period increases linearly',
+            }),
+            loc({
+              ar: 'يقل الزمن الدوري للنصف',
+              bad: 'دەمێ خۆلێ کێم دبیت بۆ نیڤێ',
+              ku: 'کاتی خول کەم دەبێتەوە بۆ نیوە',
+              kmr: 'Dema dorê dadikeve nîvî',
+              en: 'Period decreases by half',
+            }),
+            loc({
+              ar: 'يتوقف البندول عن الحركة',
+              bad: 'پەندۆل ژ لڤینێ د راوەستیت',
+              ku: 'پاندۆڵەکە لە جووڵە دەوەستێت',
+              kmr: 'Pendul ji tevgerê radiweste',
+              en: 'Pendulum ceases motion',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'صحيح. عند الزوايا الصغيرة يكون sin(θ) ≈ θ بالراديان، فتكون قوة الإعادة متناسبة خطياً مع الإزاحة.'
-              : 'True. For small angles sin(θ) ≈ θ in radians, making the restoring force linear with displacement.',
-        },
-        {
-          id: 4,
-          questionText:
-            language === 'ar'
-              ? 'ما هي وحدة قياس تسارع الجاذبية الأرضية (g) في النظام الدولي للوحدات SI؟'
-              : 'What is the SI unit for gravitational acceleration (g)?',
-          options: ['m/s²', 'm/s', 'Joule', 'Newton'],
-          correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'وحدة التسارع هي متر لكل ثانية مربعة (m/s²).'
-              : 'The SI unit for acceleration is meters per second squared (m/s²).',
+          explanation: loc({
+            ar: 'الكتلة تزيد القصور الذاتي وقوة الجاذبية بنفس المقدار فيلغي كل منهما أثر الآخر تماماً.',
+            bad: 'بارستە تەوژمێ مانێ و هێزا کێشکرنێ ب هەمان رێژە زێدە دکەت، لەوما چ کارتێکرنەکێ ل سەر دەمێ خۆلێ ناکەت.',
+            ku: 'بارستایی سستی و هێزی کێشکردن بە هەمان بڕ زیاد دەکات، بۆیە یەکتری بێکاریگەر دەکەن و کاتی خول ناگۆڕێت.',
+            kmr: 'Barste hêza giraniyê û leza bergiriyê bi heman rêjeyê zêde dike, lewma bandorê nake.',
+            en: 'Inertia and gravitational force increase equally with mass, cancelling out mass dependence.',
+          }),
         },
       ];
     }
 
-    // 2. Optics / Refraction
+    // 2. Optics / Refraction / Snell's Law
     if (cat === 'optics' || id.includes('optics') || id.includes('refraction')) {
       return [
         {
           id: 1,
-          questionText:
-            language === 'ar'
-              ? 'عند انتقال شعاع ضوئي من الهواء (n₁ = 1.0) إلى الزجاج (n₂ = 1.5)، ماذا يحدث لزاوية الانكسار (θ₂)؟'
-              : 'When light passes from air (n₁ = 1.0) into glass (n₂ = 1.5), what happens to the angle of refraction (θ₂)?',
-          options:
-            language === 'ar'
-              ? [
-                  'ينكسر الشعاع مقترباً من العمود (θ₂ < θ₁)',
-                  'ينكسر الشعاع مبتعداً عن العمود (θ₂ > θ₁)',
-                  'يمر الشعاع دون أي انحراف',
-                  'ينعكس الشعاع بالكامل دائماً',
-                ]
-              : [
-                  'Light bends towards the normal (θ₂ < θ₁)',
-                  'Light bends away from the normal (θ₂ > θ₁)',
-                  'Light passes straight without bending',
-                  'Light always reflects completely',
-                ],
+          questionText: loc({
+            ar: 'عند انتقال شعاع ضوئي من الهواء (n₁ = 1.0) إلى الزجاج (n₂ = 1.5)، ماذا يحدث لسرعة الضوء وزاوية الانكسار؟',
+            bad: 'دەمێ تیشکەکا رووناهیێ ژ هەوای (n₁ = 1.0) دەرباز دبیت بۆ شوشەی (n₂ = 1.5)، چ ل گۆشەیا شکەستنێ (θ₂) و لەزاتیا رووناهیێ دهێت؟',
+            ku: 'کاتی تێپەڕبوونی تیشکی ڕووناکی لە هەواوە (n₁ = 1.0) بۆ شوشە (n₂ = 1.5)، چی بەسەر خێرایی و گۆشەی شکانەوەدا دێت؟',
+            kmr: 'Dema tîrêja ronahiyê ji hewayê derbasî camê dibe, lez û goşeya şikestinê çi dibin?',
+            en: 'When light travels from air (n₁ = 1.0) into glass (n₂ = 1.5), what happens to speed and refraction angle?',
+          }),
+          options: [
+            loc({
+              ar: 'تقل سرعة الضوء وينكسر الشعاع مقترباً من العمود (θ₂ < θ₁)',
+              bad: 'لەزاتی کێم دبیت و تیشک بەرەڤ هێلا ستوونی دچەمیت (θ₂ < θ₁)',
+              ku: 'خێرایی کەم دەکات و تیشکەکە نزیک دەبێتەوە لە هێڵی ستوون (θ₂ < θ₁)',
+              kmr: 'Lez kêm dibe û tîrêj nêzîkî xeta stûnî dibe (θ₂ < θ₁)',
+              en: 'Light slows down and bends toward normal (θ₂ < θ₁)',
+            }),
+            loc({
+              ar: 'تزداد سرعة الضوء وينكسر مبتعداً عن العمود',
+              bad: 'لەزاتی زێدە دبیت و تیشک ژ هێلا ستوونی دویر دکەڤیت',
+              ku: 'خێرایی زیاد دەکات و تیشکەکە لە هێڵی ستوون دوور دەکەوێتەوە',
+              kmr: 'Lez zêde dibe û tîrêj ji xeta stûnî dûr dikeve',
+              en: 'Light accelerates and bends away from normal',
+            }),
+            loc({
+              ar: 'تبقى السرعة والزاوية ثابتتين دون تغير',
+              bad: 'لەزاتی و ئاراستە چ ناگوهۆڕن',
+              ku: 'خێرایی و گۆشە بە جێگیری دەمێننەوە',
+              kmr: 'Lez û goşe wek xwe dimînin',
+              en: 'Speed and angle remain entirely unchanged',
+            }),
+            loc({
+              ar: 'ينعكس الشعاع كلياً بشكل فوري',
+              bad: 'رووناهی ب تەمامی دزڤڕیتە ڤە',
+              ku: 'تیشکەکە دەستبەجێ بە تەواوەتی دەداتەوە',
+              kmr: 'Tîrêj bi tevahî vedigere',
+              en: 'Light instantly undergoes total reflection',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'طبقاً لقانون سنيل n₁ sin(θ₁) = n₂ sin(θ₂)، عند الانتقال لوسط أصلد ضوئياً (n₂ > n₁) تقل سرعة الضوء وينكسر الشعاع مقترباً من العمود.'
-              : 'According to Snell’s Law n₁ sin(θ₁) = n₂ sin(θ₂), moving into a higher refractive index medium slows light down, bending it towards the normal.',
+          explanation: loc({
+            ar: 'الزجاج وسط ذو كثافة بصرية أعلى (معامل انكسار أكبر)، مما يبطئ سرعة انتشار الضوء ويحرفه باتجاه العمود المقام.',
+            bad: 'شوشە ناڤەندەکا چڕترە ژ هەوای، لەوما لەزاتیا رووناهیێ کێم دبیت و تیشک بەرەڤ هێلا ستوونی دچەمیت.',
+            ku: 'شوشە چڕیی بینایی زیاترە و خێرایی ڕووناکی کەم دەکاتەوە، بۆیە تیشکەکە دەچەمێتەوە بەرەو هێڵی ستوون.',
+            kmr: 'Cam navgîneke çڕtir e, loma leza ronahiyê kêm dibe û tîrêj nêzîkî stûnê dibe.',
+            en: 'Glass has a higher refractive index, reducing light speed (v = c/n) and bending the ray toward the normal.',
+          }),
         },
         {
           id: 2,
-          questionText:
-            language === 'ar'
-              ? 'متى يحدث الانعكاس الكلي الداخلي (Total Internal Reflection)؟'
-              : 'When does Total Internal Reflection occur?',
-          options:
-            language === 'ar'
-              ? [
-                  'عند الانتقال من وسط أكبر كثافة ضوئية لأقل وسقوط الضوء بزاوية أكبر من الزاوية الحرجة',
-                  'عند الانتقال من الهواء إلى الماء بزاوية 0°',
-                  'عندما تكون زاوية السقوط أصغر من 10° دائماً',
-                  'في جميع الأوساط الشفافة بغض النظر عن الزاوية',
-                ]
-              : [
-                  'Traveling from higher to lower refractive index at an angle greater than the critical angle (θ₁ > θc)',
-                  'Traveling from air to water at 0° incidence',
-                  'When incidence angle is less than 10°',
-                  'In all transparent media regardless of angle',
-                ],
+          questionText: loc({
+            ar: 'ما هو الشرط الأساسي لحدوث ظاهرة الانعكاس الكلي الداخلي (Total Internal Reflection)؟',
+            bad: 'مەرجێ سەرەکی یێ رویدانا ڤەگەڕیانا تەمام یا ناڤخۆیی (Total Internal Reflection) چییە؟',
+            ku: 'مەرجی سەرەکی بۆ ڕوودانی دانەوەی تەواوەتی ناوەکی (Total Internal Reflection) چییە؟',
+            kmr: 'Mercê sereke yê vegera tam a hundirîn çi ye?',
+            en: 'What is the required condition for Total Internal Reflection to occur?',
+          }),
+          options: [
+            loc({
+              ar: 'الانتقال من وسط أكبر كثافة لوسط أقل بزاوية سقوط أكبر من الزاوية الحرجة (θ₁ > θc)',
+              bad: 'دەربازبوون ژ ناڤەندەکا چڕتر بۆ یا کێمچڕتر و گۆشەیا لێدانێ مەزنتر بیت ژ یا کریتیک (θ₁ > θc)',
+              ku: 'چوون لە ناVendی چڕترەوە بۆ کەمچڕتر بە گۆشەیەک کە گەورەتر بێت لە گۆشەی مۆڵەقە (θ₁ > θc)',
+              kmr: 'Derbasbûn ji navgîna çڕ ber bi kêmçڕ ve bi goşeya ji ya krîtîk mezintir (θ₁ > θc)',
+              en: 'Moving from higher to lower index medium at incident angle greater than critical angle (θ₁ > θc)',
+            }),
+            loc({
+              ar: 'السقوط بزاوية عمودية تماماً (θ₁ = 0°)',
+              bad: 'لێدان ب گۆشەیەکا ستوونی (θ₁ = 0°)',
+              ku: 'لێدان بە گۆشەی ستوونی تەواو (θ₁ = 0°)',
+              kmr: 'Lêdan bi awayekî stûnî (θ₁ = 0°)',
+              en: 'Incidence at normal angle (θ₁ = 0°)',
+            }),
+            loc({
+              ar: 'الانتقال من وسط أقل كثافة لوسط أكبر كثافة',
+              bad: 'دەربازبوون ژ ناڤەندەکا کێمچڕ بۆ یا چڕتر',
+              ku: 'گواستنەوە لە ناVendی کەمچڕەوە بۆ چڕتر',
+              kmr: 'Derbasbûn ji navgîna kêmçڕ ber bi ya çڕ ve',
+              en: 'Moving from lower to higher refractive index',
+            }),
+            loc({
+              ar: 'استخدام ضوء أبيض حصرياً',
+              bad: 'بکارئینانا رووناهیا سپی ب تنێ',
+              ku: 'بەکارهێنانی تەنها ڕووناکی سپی',
+              kmr: 'Bikaranîna ronahiya spî tenê',
+              en: 'Using white light exclusively',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'شرطا الانعكاس الكلي الداخلي: الانتقال من وسط أكبر معامل انكسار لوسط أقل، وأن تتجاوز زاوية السقوط الزاوية الحرجة sin(θc) = n₂/n₁.'
-              : 'Total internal reflection requires moving from a higher index to a lower index medium at θ₁ > θc where sin(θc) = n₂/n₁.',
+          explanation: loc({
+            ar: 'شرطا الانعكاس الكلي الداخلي: الانتقال من وسط أكبر معامل انكسار لوسط أقل، وأن تتجاوز زاوية السقوط الزاوية الحرجة sin(θc) = n₂/n₁.',
+            bad: 'ڤەگەڕیانا تەمام یا ناڤخۆیی پێدڤی ب دەربازبوونێ هەیە ژ ناڤەندەکا چڕتر بۆ یا کێمچڕتر و گۆشەیا لێدانێ مەزنتر بیت ژ گۆشەیا کریتیک sin(θc) = n₂/n₁.',
+            ku: 'مەرجەکانی دانەوەی تەواوەتی: چوون لە ناVendی چڕترەوە بۆ کەمچڕتر، و گۆشەی لێدان گەورەتر بێت لە گۆشەی مۆڵەقە sin(θc) = n₂/n₁.',
+            kmr: 'Mercê vegera tam: derbasbûn ji navgîna çڕ ber bi kêmçڕ ve bi goşeya ji ya krîtîk mezintir.',
+            en: 'Total internal reflection requires moving from higher to lower index medium at θ₁ > θc where sin(θc) = n₂/n₁.',
+          }),
         },
         {
           id: 3,
-          questionText:
-            language === 'ar'
-              ? 'ما هي وحدة قياس معامل الانكسار (n)؟'
-              : 'What is the unit of measure for refractive index (n)?',
-          options:
-            language === 'ar'
-              ? ['بدون وحدة قياس (كمية غير بعدية)', 'متر / ثانية', 'درجة قوسية °', 'راديان']
-              : ['Dimensionless (no unit)', 'Meters / second', 'Degrees °', 'Radians'],
+          questionText: loc({
+            ar: 'ما هي وحدة قياس معامل الانكسار (n)؟',
+            bad: 'ئێکەیا پێڤانا هاوکۆلکێ شکەستنێ (n) چییە؟',
+            ku: 'یەکەی پێوانەی هاوکۆڵکەی شکانەوە (n) چییە؟',
+            kmr: 'Yekeya hevkêşana şikestinê (n) çi ye?',
+            en: 'What is the unit of measure for refractive index (n)?',
+          }),
+          options: [
+            loc({
+              ar: 'بدون وحدة قياس (كمية غير بعدية)',
+              bad: 'بێ ئێکەیە (بڕەکێ بێ ئێکە)',
+              ku: 'بێ یەکەی پێوانەیە (بڕێکی بێ یەکە)',
+              kmr: 'Bê yeke ye (kodans)',
+              en: 'Dimensionless (no unit)',
+            }),
+            loc({
+              ar: 'متر / ثانية',
+              bad: 'مەتر / چرکە',
+              ku: 'مەتر / چرکە',
+              kmr: 'Metre / çirke',
+              en: 'Meters / second',
+            }),
+            loc({
+              ar: 'درجة قوسية °',
+              bad: 'پلەیا گۆشەیی °',
+              ku: 'پلەی گۆشەیی °',
+              kmr: 'Pileyên goşeyî °',
+              en: 'Degrees °',
+            }),
+            loc({
+              ar: 'راديان',
+              bad: 'رادیان',
+              ku: 'ڕادیان',
+              kmr: 'Radyan',
+              en: 'Radians',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'معامل الانكسار نسبة بين سرعتين n = c/v، لذا فهو كمية عددية مجردة بدون وحدة.'
-              : 'Refractive index is a speed ratio n = c/v, making it a dimensionless unitless quantity.',
+          explanation: loc({
+            ar: 'معامل الانكسار نسبة بين سرعتين n = c/v، لذا فهو كمية عددية مجردة بدون وحدة.',
+            bad: 'هاوکۆلکێ شکەستنێ رێژەیا د ناڤبەرا دوو لەزاتیایە n = c/v، لەوما بڕەکێ بێ ئێکەیە.',
+            ku: 'هاوکۆڵکەی شکانەوە بریتییە لە ڕێژەی نێوان دوو خێرایی n = c/v، بۆیە بڕێکی بێ یەکەیە.',
+            kmr: 'Hevkêşana şikestinê rêjeya navbera du lezan e n = c/v, lewma bê yeke ye.',
+            en: 'Refractive index is a speed ratio n = c/v, making it a dimensionless unitless quantity.',
+          }),
         },
       ];
     }
@@ -191,48 +356,118 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
       return [
         {
           id: 1,
-          questionText:
-            language === 'ar'
-              ? 'طبقاً لقانون أوم (V = I × R)، إذا تضاعفت المقاومة الكهربائية (R) لمرتين مع ثبات فرق الجهد (V)، فماذا يحدث لشدة التيار (I)؟'
-              : 'According to Ohm’s Law (V = I × R), if resistance (R) doubles while voltage (V) remains constant, current (I) will:',
-          options:
-            language === 'ar'
-              ? ['تنخفض إلى النصف (0.5 I)', 'تتضاعف مرتين (2 I)', 'تتضاعف أربعة أضعاف', 'تبقى ثابتاً دون تغير']
-              : ['Halve (0.5 I)', 'Double (2 I)', 'Quadruple', 'Remain unchanged'],
+          questionText: loc({
+            ar: 'طبقاً لقانون أوم (V = I × R)، إذا تضاعفت المقاومة الكهربائية (R) لمرتين مع ثبات فرق الجهد (V)، فماذا يحدث لشدة التيار (I)؟',
+            bad: 'ل دووڤ یاسایا ئۆمی (V = I × R)، ئەگەر بەرگریا کارەبایی (R) دوو جاران بهێتە زێدەکرن د دەمێ نەگوهۆڕینا ڤۆڵتیێ دا، توندیا تەزووی (I) چ لێ دهێت؟',
+            ku: 'بەپێی یاسای ئۆم (V = I × R)، ئەگەر بەرگری کارەبایی (R) دوو هێندە زیاد بکات لەکاتی جێگیری ڤۆڵتیە (V)، چی بەسەر توندی تەزوو (I) دێت؟',
+            kmr: 'Li gorî zagona Ohm (V = I × R), heke bergirî (R) du qat bibe di voltaja sabît de, herikîn (I) çi dibe?',
+            en: 'According to Ohm’s Law (V = I × R), if resistance (R) doubles while voltage (V) remains constant, current (I) will:',
+          }),
+          options: [
+            loc({
+              ar: 'تنخفض إلى النصف (0.5 I)',
+              bad: 'کێم دبیت بۆ نیڤێ (0.5 I)',
+              ku: 'کەم دەبێتەوە بۆ نیوە (0.5 I)',
+              kmr: 'Dadikeve nîvî (0.5 I)',
+              en: 'Halve (0.5 I)',
+            }),
+            loc({
+              ar: 'تتضاعف مرتين (2 I)',
+              bad: 'دوو جاران زێدە دبیت (2 I)',
+              ku: 'دوو هێندە زیاد دەکات (2 I)',
+              kmr: 'Du qat dibe (2 I)',
+              en: 'Double (2 I)',
+            }),
+            loc({
+              ar: 'تتضاعف أربعة أضعاف',
+              bad: 'چوار جاران زێدە دبیت',
+              ku: 'چوار هێندە زیاد دەکات',
+              kmr: 'Çar qat dibe',
+              en: 'Quadruple',
+            }),
+            loc({
+              ar: 'تبقى ثابتاً دون تغير',
+              bad: 'بێ گوهۆڕین دمینیت',
+              ku: 'بێ گۆڕان دەمێنێتەوە',
+              kmr: 'Wek xwe dimîne',
+              en: 'Remain unchanged',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'التيار I = V / R يتناسب عكسياً مع المقاومة R، لذا فإن مضاعفة المقاومة تقلل التيار للنصف.'
-              : 'Current I = V / R is inversely proportional to resistance R, so doubling resistance halves current.',
+          explanation: loc({
+            ar: 'التيار I = V / R يتناسب عكسياً مع المقاومة R، لذا فإن مضاعفة المقاومة تقلل التيار للنصف.',
+            bad: 'تەزوو I = V / R ب شێوەیەکێ پێچەوانە دگەل بەرگریێ دگۆهۆڕیت، لەوما دووبارەکرنا بەرگریێ تەزووی دکەتە نیڤ.',
+            ku: 'تەزوو I = V / R پێچەوانە دەگۆڕێت لەگەڵ بەرگری R، بۆیە دوو هێندەکردنی بەرگری تەزوو دەکاتە نیوە.',
+            kmr: 'Herikîn I = V / R bi bergiriyê re berevajî ye, loma bergirî zêde bibe herikîn kêm dibe.',
+            en: 'Current I = V / R is inversely proportional to resistance R, so doubling resistance halves current.',
+          }),
         },
         {
           id: 2,
-          questionText:
-            language === 'ar'
-              ? 'ما هي وحدة قياس القدرة الكهربائية المتبددة (P) في الموصل؟'
-              : 'What is the SI unit for electric power (P)?',
-          options: ['Watt (واط)', 'Volt (فولت)', 'Ampere (أمبير)', 'Ohm (أوم)'],
+          questionText: loc({
+            ar: 'ما هي وحدة قياس القدرة الكهربائية المتبددة (P) في الموصل؟',
+            bad: 'ئێکەیا پێڤانا شیانا کارەبایی (P) چییە؟',
+            ku: 'یەکەی پێوانەی توانای کارەبایی (P) چییە؟',
+            kmr: 'Yekeya pîvana hêza elektrîkî (P) çi ye?',
+            en: 'What is the SI unit for electric power (P)?',
+          }),
+          options: ['Watt (واط / وات)', 'Volt (فولت / ڤۆڵت)', 'Ampere (أمبير / ئەمپێر)', 'Ohm (أوم / ئۆم)'],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'تقاس القدرة الكهربائية بوحدة الواط (Watt) وتساوي جُول لكل ثانية (P = V × I).'
-              : 'Electric power is measured in Watts (W), representing energy consumed per second (P = V × I).',
+          explanation: loc({
+            ar: 'تقاس القدرة الكهربائية بوحدة الواط (Watt) وتساوي جُول لكل ثانية (P = V × I).',
+            bad: 'شیانا کارەبایی ب یەکا وات (Watt) دهێتە پێڤان کو دکەتە جوول د ئێک چرکے دا (P = V × I).',
+            ku: 'توانای کارەبایی بە یەکەی وات (Watt) دەپێورێت کە دەکاتە جووڵ بۆ هەر چرکەیەک (P = V × I).',
+            kmr: 'Hêza elektrîkê bi Watt tê pîvandin (Joule/çirke).',
+            en: 'Electric power is measured in Watts (W), representing energy consumed per second (P = V × I).',
+          }),
         },
         {
           id: 3,
-          questionText:
-            language === 'ar'
-              ? 'ماذا يحدث للقدرة المتبددة حرارياً (P = I² R) عند مضاعفة شدة التيار المار مرتين (2I)؟'
-              : 'What happens to dissipated thermal power (P = I² R) if current (I) is doubled?',
-          options:
-            language === 'ar'
-              ? ['تزداد أربعة أضعاف (4P)', 'تتضاعف مرتين فقط (2P)', 'تقل للنصف', 'لا تتغير']
-              : ['Quadruples (4P)', 'Doubles only (2P)', 'Halves (0.5P)', 'Remains unchanged'],
+          questionText: loc({
+            ar: 'ماذا يحدث للقدرة المتبددة حرارياً (P = I² R) عند مضاعفة شدة التيار المار مرتين (2I)؟',
+            bad: 'چی ب سەر شیانا بەلاڤبوویا گەرمی (P = I² R) دهێت ئەگەر توندیا تەزووی دوو جاران زێدە ببیت (2I)؟',
+            ku: 'چی بەسەر توانای بەفیڕۆچووی گەرمی (P = I² R) دێت ئەگەر توندی تەزوو دوو هێندە زیاد بکرێت (2I)؟',
+            kmr: 'Heke herikîna elektrîkê du qat bibe (2I), hêza germî (P = I² R) çi dibe?',
+            en: 'What happens to dissipated thermal power (P = I² R) if current (I) is doubled?',
+          }),
+          options: [
+            loc({
+              ar: 'تزداد أربعة أضعاف (4P)',
+              bad: 'چوار جاران زێدە دبیت (4P)',
+              ku: 'چوار هێندە زیاد دەکات (4P)',
+              kmr: 'Çar qat zêde dibe (4P)',
+              en: 'Quadruples (4P)',
+            }),
+            loc({
+              ar: 'تتضاعف مرتين فقط (2P)',
+              bad: 'دوو جاران زێدە دبیت (2P)',
+              ku: 'تەنها دوو هێندە زیاد دەکات (2P)',
+              kmr: 'Du qat dibe (2P)',
+              en: 'Doubles only (2P)',
+            }),
+            loc({
+              ar: 'تقل للنصف',
+              bad: 'کێم دبیت بۆ نیڤێ',
+              ku: 'کەم دەبێتەوە بۆ نیوە',
+              kmr: 'Dadikeve nîvî',
+              en: 'Halves (0.5P)',
+            }),
+            loc({
+              ar: 'لا تتغير',
+              bad: 'ناگوهۆڕیت',
+              ku: 'ناگۆڕێت',
+              kmr: 'Naguhere',
+              en: 'Remains unchanged',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'القدرة تتناسب مع مربع شدة التيار (I²). مربع 2 هو 4، فتتضاعف القدرة 4 مرات.'
-              : 'Power depends on the square of current (I²). (2)² = 4, so power quadruples.',
+          explanation: loc({
+            ar: 'القدرة تتناسب مع مربع شدة التيار (I²). مربع 2 هو 4، فتتضاعف القدرة 4 مرات.',
+            bad: 'شیان ب دووجایا توندیا تەزووی ڤە گرێدایە (I²)، دووجایا 2 دکەتە 4، لەوما شیان 4 جاران زێدە دبیت.',
+            ku: 'توانا بەستراوەتەوە بە دووجای توندی تەزوو (I²). دووجای ٢ دەکاتە ٤، کەواتە توانا چوار هێندە زیاد دەکات.',
+            kmr: 'Hêz bi çargoşeya herikînê (I²) re têkildar e. (2)² = 4.',
+            en: 'Power depends on the square of current (I²). (2)² = 4, so power quadruples.',
+          }),
         },
       ];
     }
@@ -242,32 +477,70 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
       return [
         {
           id: 1,
-          questionText:
-            language === 'ar'
-              ? 'في قانون الغاز المثالي (P × V = n × R × T)، إذا انخفض حجم الإناء (V) إلى النصف مع ثبات درجة الحرارة، ماذا يحدث للضغط (P)؟'
-              : 'In the Ideal Gas Law (P × V = n × R × T), if volume (V) decreases by half at constant temperature, pressure (P) will:',
-          options:
-            language === 'ar'
-              ? ['يتضاعف مرتين (2P)', 'ينخفض إلى النصف', 'يبقى ثابتاً', 'ينعدم الضغط']
-              : ['Double (2P)', 'Halve', 'Remain constant', 'Become zero'],
+          questionText: loc({
+            ar: 'في قانون الغاز المثالي (P × V = n × R × T)، إذا انخفض حجم الإناء (V) إلى النصف مع ثبات درجة الحرارة، ماذا يحدث للضغط (P)؟',
+            bad: 'د یاسایا گازا نموونەییدا (P × V = n × R × T)، ئەگەر قەبارەیا دەفری (V) بۆ نیڤێ کێم ببیت د پلەیا گەرمیا نەگوهۆڕدا، پەستان (P) چ لێ دهێت؟',
+            ku: 'لە یاسای گازی نموونەییدا (P × V = n × R × T)، ئەگەر قەبارەی دەفر (V) بۆ نیوە کەم بکات لە پلەی گەرمی نەگۆڕدا، چی بەسەر پەستاندا (P) دێت؟',
+            kmr: 'Di zagona gaza nimûneyî de, heke qebare dakeve nîvî di germahiya sabît de, pestan çi dibe?',
+            en: 'In the Ideal Gas Law (P × V = n × R × T), if volume (V) decreases by half at constant temperature, pressure (P) will:',
+          }),
+          options: [
+            loc({
+              ar: 'يتضاعف مرتين (2P)',
+              bad: 'دوو جاران زێدە دبیت (2P)',
+              ku: 'دوو هێندە زیاد دەکات (2P)',
+              kmr: 'Du qat zêde dibe (2P)',
+              en: 'Double (2P)',
+            }),
+            loc({
+              ar: 'ينخفض إلى النصف',
+              bad: 'کێم دبیت بۆ نیڤێ',
+              ku: 'کەم دەبێتەوە بۆ نیوە',
+              kmr: 'Dadikeve nîvî',
+              en: 'Halve',
+            }),
+            loc({
+              ar: 'يبقى ثابتاً',
+              bad: 'ب نەگوهۆڕی دمینیت',
+              ku: 'بە جێگیری دەمێنێتەوە',
+              kmr: 'Wek xwe dimîne',
+              en: 'Remain constant',
+            }),
+            loc({
+              ar: 'ينعدم الضغط',
+              bad: 'پەستان نابیت',
+              ku: 'پەستان نابێت',
+              kmr: 'Dibe sifir',
+              en: 'Become zero',
+            }),
+          ],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'طبقاً لقانون بويل، يتناسب الضغط عكسياً مع الحجم (P ∝ 1/V) عند ثبات درجة الحرارة.'
-              : 'According to Boyle’s Law, pressure is inversely proportional to volume (P ∝ 1/V) at constant temperature.',
+          explanation: loc({
+            ar: 'طبقاً لقانون بويل، يتناسب الضغط عكسياً مع الحجم (P ∝ 1/V) عند ثبات درجة الحرارة.',
+            bad: 'ل دووڤ یاسایا بۆیلی، پەستان ب شێوەیەکێ پێچەوانە دگەل قەبارەی دگۆهۆڕیت (P ∝ 1/V) د پلەیا گەرمیا نەگوهۆڕدا.',
+            ku: 'بەپێی یاسای بۆیل، پەستان پێچەوانە دەگۆڕێت لەگەڵ قەبارەدا (P ∝ 1/V) لەکاتی جێگیری پلەی گەرمیدا.',
+            kmr: 'Li gorî zagona Boyle, pestan bi qebareyê re berevajî ye (P ∝ 1/V).',
+            en: 'According to Boyle’s Law, pressure is inversely proportional to volume (P ∝ 1/V) at constant temperature.',
+          }),
         },
         {
           id: 2,
-          questionText:
-            language === 'ar'
-              ? 'ما هي وحدة قياس درجة الحرارة المطلقة الواجب استخدامها في قوانين الغازات؟'
-              : 'What unit of absolute temperature must be used in gas laws?',
-          options: ['Kelvin (K)', 'Celsius (°C)', 'Fahrenheit (°F)', 'Joule (J)'],
+          questionText: loc({
+            ar: 'ما هي وحدة قياس درجة الحرارة المطلقة الواجب استخدامها في قوانين الغازات؟',
+            bad: 'ئێکەیا پێڤانا پلەیا گەرمیا رەها یا پێدڤی د یاسایێن گازاندا چییە؟',
+            ku: 'یەکەی پێوانەی پلەی گەرمی ڕەها کە دەبێت لە یاساکانی گازدا بەکاربێت چییە؟',
+            kmr: 'Yekeya pîvana germahiya mutleq di zagonên gazê de çi ye?',
+            en: 'What unit of absolute temperature must be used in gas laws?',
+          }),
+          options: ['Kelvin (K / کێلڤن)', 'Celsius (°C / سیلیزی)', 'Fahrenheit (°F)', 'Joule (J / جوول)'],
           correctIndex: 0,
-          explanation:
-            language === 'ar'
-              ? 'تستخدم درجة الحرارة المطلقة بوحدة الكلفن (K = °C + 273.15) في جميع معادلات الديناميكا الحرارية.'
-              : 'Absolute temperature in Kelvin (K = °C + 273.15) is strictly required for thermodynamic equations.',
+          explanation: loc({
+            ar: 'تستخدم درجة الحرارة المطلقة بوحدة الكلفن (K = °C + 273.15) في جميع معادلات الديناميكا الحرارية.',
+            bad: 'پلەیا گەرمیا رەها ب یەکا کێلڤن (K = °C + 273.15) د هەمی هاوکێشەیێن دینامیکا گەرمی دا دهێتە بکارئینان.',
+            ku: 'پلەی گەرمی ڕەها بە یەکەی کێلڤن (K = °C + 273.15) لە هەموو هاوکێشە گەرمییەکاندا بەکاردێت.',
+            kmr: 'Germahiya mutleq bi Kelvin (K = °C + 273.15) tê bikaranîn.',
+            en: 'Absolute temperature in Kelvin (K = °C + 273.15) is strictly required for thermodynamic equations.',
+          }),
         },
       ];
     }
@@ -276,47 +549,99 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
     return [
       {
         id: 1,
-        questionText:
-          language === 'ar'
-            ? `ما القانون أو المبدأ الفيزيائي الأساسي الذي تحاكيه هذه التجربة؟`
-            : `What primary physical law governs this simulation?`,
+        questionText: loc({
+          ar: 'ما القانون أو المبدأ الفيزيائي الأساسي الذي تحاكيه هذه التجربة؟',
+          bad: 'یاسا یان بنەمایێ فیزیکی یێ سەرەکی کو ئەڤ تاقیکرنە نیشان ددەت چییە؟',
+          ku: 'یاسا یان بنەمای فیزیکی سەرەکی کە ئەم تاقیکردنەوەیە دەری دەخات چییە؟',
+          kmr: 'Zagon an prensîba sereke ya vê ceribandinê çi ye?',
+          en: 'What primary physical law governs this simulation?',
+        }),
         options: [
-          experiment.physicalLaw || 'قانون الحفظ الفيزيائي',
-          language === 'ar' ? 'قانون كبلر الثالث' : 'Kepler’s Third Law',
-          language === 'ar' ? 'مبدأ أرخميدس للطفو' : 'Archimedes Principle',
-          language === 'ar' ? 'قانون كولوم الشحني' : 'Coulomb’s Law',
+          experiment.physicalLaw || loc({
+            ar: 'قانون الحفظ الفيزيائي',
+            bad: 'یاسایا پاراستنا فیزیکی',
+            ku: 'یاسای پاراستنی فیزیکی',
+            kmr: 'Zagona parastina fîzîkî',
+            en: 'Physical Conservation Law',
+          }),
+          loc({
+            ar: 'قانون كبلر الثالث',
+            bad: 'یاسایا سێیێ یا کێپلەری',
+            ku: 'یاسای سێیەمی کێپلەر',
+            kmr: 'Zagona sêyem a Kepler',
+            en: 'Kepler’s Third Law',
+          }),
+          loc({
+            ar: 'مبدأ أرخميدس للطفو',
+            bad: 'بنەمایێ ئارخیمیدسی بۆ سەرئئاڤکەفتنێ',
+            ku: 'بنەمای ئارخیمیدس بۆ سەرئاوکەوتن',
+            kmr: 'Prensîba Arşîmed',
+            en: 'Archimedes Principle',
+          }),
+          loc({
+            ar: 'قانون كولوم الشحني',
+            bad: 'یاسایا کۆلۆمی بۆ بارگان',
+            ku: 'یاسای کوڵۆم بۆ بارگەکان',
+            kmr: 'Zagona Coulomb',
+            en: 'Coulomb’s Law',
+          }),
         ],
         correctIndex: 0,
-        explanation:
-          language === 'ar'
-            ? `القانون الفيزيائي الرئيسي لهذه التجربة هو: ${experiment.physicalLaw}.`
-            : `The governing physical principle for this experiment is ${experiment.physicalLaw}.`,
+        explanation: loc({
+          ar: `القانون الفيزيائي الرئيسي لهذه التجربة هو: ${experiment.physicalLaw}.`,
+          bad: `یاسایا فیزیکی یا سەرەکی بۆ ئەڤێ تاقیکرنێ بریتییە ژ: ${experiment.physicalLaw}.`,
+          ku: `یاسای فیزیکی سەرەکی بۆ ئەم تاقیکردنەوەیە بریتییە لە: ${experiment.physicalLaw}.`,
+          kmr: `Zagona sereke ya vê ceribandinê: ${experiment.physicalLaw}.`,
+          en: `The governing physical principle for this experiment is ${experiment.physicalLaw}.`,
+        }),
       },
       {
         id: 2,
-        questionText:
-          language === 'ar'
-            ? 'ما الهدف الأساسي من تعديل المعاملات والمدخلات في المحاكاة؟'
-            : 'What is the primary purpose of adjusting input parameters in this simulation?',
-        options:
-          language === 'ar'
-            ? [
-                'ملاحظة واستنتاج العلاقات الفيزيائية بين المتغيرات حياً',
-                'تغيير القوانين الفيزيائية للكون',
-                'إيقاف المحاكاة بشكل دائم',
-                'لا يطرق أي تغيير على المخرجات',
-              ]
-            : [
-                'To observe and infer physical relationships between variables in real-time',
-                'To alter universal laws of physics',
-                'To permanently stop the simulation',
-                'No output changes occur',
-              ],
+        questionText: loc({
+          ar: 'ما الهدف الأساسي من تعديل المعاملات والمدخلات في المحاكاة؟',
+          bad: 'ئارمانجا سەرەکی ژ دەستکاریکرنا پێوەر و گوهۆڕۆکان د ئەڤێ سیمیولەیشنێ دا چییە؟',
+          ku: 'ئامانجی سەرەکی لە دەستکاریکردنی پێوەر و گۆڕاوەکان لەم شبیهسازییەدا چییە؟',
+          kmr: 'Armanca sereke ya guhertina parametreyan di vê simulasyonê de çi ye?',
+          en: 'What is the primary purpose of adjusting input parameters in this simulation?',
+        }),
+        options: [
+          loc({
+            ar: 'ملاحظة واستنتاج العلاقات الفيزيائية بين المتغيرات حياً',
+            bad: 'دیتن و دەرئەنجام وەرگرتن ژ پەیوەندیێن فیزیکی ب شێوەیەکێ راستەوخۆ',
+            ku: 'بینین و دەرئەنجام وەرگرتن لە پەیوەندییە فیزیکییەکان بە شێوەی ڕاستەوخۆ',
+            kmr: 'Dîtin û têgihîştina têkiliyên fîzîkî yên navbera guhêrbaran',
+            en: 'To observe and infer physical relationships between variables in real-time',
+          }),
+          loc({
+            ar: 'تغيير القوانين الفيزيائية للكون',
+            bad: 'گوهۆڕینا یاسایێن فیزیکی یێن گەردوونی',
+            ku: 'گۆڕینی یاسا فیزیکییەکانی گەردوون',
+            kmr: 'Guhertina zagonên gerdûnê',
+            en: 'To alter universal laws of physics',
+          }),
+          loc({
+            ar: 'إيقاف المحاكاة بشكل دائم',
+            bad: 'راوەستاندنا هەمیشەیی یا سیمیولەیشنێ',
+            ku: 'ڕاگرتنی هەمیشەیی شبیهسازییەکە',
+            kmr: 'Rawestandina ceribandinê',
+            en: 'To permanently stop the simulation',
+          }),
+          loc({
+            ar: 'لا يطرق أي تغيير على المخرجات',
+            bad: 'چ گوهۆڕین د دەرئەنجاماندا روینادەت',
+            ku: 'هیچ گۆڕانێک ڕوونادات لە دەرئەنجامەکاندا',
+            kmr: 'Tu guhertin çênabe',
+            en: 'No output changes occur',
+          }),
+        ],
         correctIndex: 0,
-        explanation:
-          language === 'ar'
-            ? 'تتيح المحاكاة التفاعلية دراسة التأثير المباشر لكل متغير مدخل على المخرجات المقاسة.'
-            : 'Interactive simulation lets students discover how tweaking input parameters affects measured physical outputs.',
+        explanation: loc({
+          ar: 'تتيح المحاكاة التفاعلية دراسة التأثير المباشر لكل متغير مدخل على المخرجات المقاسة.',
+          bad: 'سیمیولەیشنا کارلێککەر رێکێ ددەت کارتێکرنا راستەوخۆ یا گوهۆڕۆکان ل سەر دەرئەنجامان ببینی.',
+          ku: 'ئەم شبیهسازییە کارلێککارە ڕێگە دەدات کاریگەری ڕاستەوخۆی گۆڕاوەکان لەسەر دەرئەنجامەکان ببینیت.',
+          kmr: 'Simulasyon dihêle ku hûn bandora rasterast a guhêrbaran li ser encaman bibînin.',
+          en: 'Interactive simulation lets students discover how tweaking input parameters affects measured physical outputs.',
+        }),
       },
     ];
   }, [experiment, language]);
@@ -356,14 +681,134 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
   const scoreCount = answersHistory.filter((a) => a.isCorrect).length;
   const scorePercent = Math.round((scoreCount / questions.length) * 100);
 
-  const titleText =
-    language === 'ar'
-      ? 'اختبار واستيعاب المفاهيم'
-      : language === 'ku'
-      ? 'تاقیکردنەوە و تێگەیشتنی چەمکەکان'
-      : language === 'kmr'
-      ? 'Taqîkirin û Têgihîştina Çemkan'
-      : 'Learning Check & Concept Quiz';
+  const titleText = loc({
+    ar: 'اختبار واستيعاب المفاهيم',
+    bad: 'تاقیکرن و تێگەهشتنا چەمکان',
+    ku: 'تاقیکردنەوە و تێگەیشتنی چەمکەکان',
+    kmr: 'Taqîkirin û Têgihîştina Çemkan',
+    en: 'Learning Check & Concept Quiz',
+  });
+
+  const subtitleQuestions = loc({
+    ar: `أسئلة تفاعلية (${questions.length} أسئلة)`,
+    bad: `پسیارێن کارلێککەر (${questions.length} پسیار)`,
+    ku: `پرسیاری کارلێککار (${questions.length} پرسیار)`,
+    kmr: `Pirsên Înteraktîf (${questions.length} Pirs)`,
+    en: `Interactive Quiz (${questions.length} Questions)`,
+  });
+
+  const collapseLabel = loc({
+    ar: 'طَيّ',
+    bad: 'نڤیسینگەهـ / کۆمکرن',
+    ku: 'کۆکردنەوە',
+    kmr: 'Nihandin',
+    en: 'Collapse',
+  });
+
+  const expandLabel = loc({
+    ar: 'توسيع',
+    bad: 'بەرفرەهـ کرن',
+    ku: 'فراوانکردن',
+    kmr: 'Berfirehkirin',
+    en: 'Expand',
+  });
+
+  const questionProgressText = loc({
+    ar: `السؤال ${currentIndex + 1} من ${questions.length}`,
+    bad: `پسیارا ${currentIndex + 1} ژ ${questions.length}`,
+    ku: `پرسیاری ${currentIndex + 1} لە ${questions.length}`,
+    kmr: `Pirsa ${currentIndex + 1} ji ${questions.length}`,
+    en: `Question ${currentIndex + 1} of ${questions.length}`,
+  });
+
+  const confirmAnswerLabel = loc({
+    ar: 'تأكيد الإجابة',
+    bad: 'پشتراستکرنا بەرسڤێ',
+    ku: 'پشتڕاستکردنەوەی وەڵام',
+    kmr: 'Piştrastkirina Bersivê',
+    en: 'Check Answer',
+  });
+
+  const correctBadge = loc({
+    ar: 'إجابة صحيحة! أحسنت',
+    bad: 'بەرسڤا دروستە! دەستخۆش',
+    ku: 'وەڵامی دروستە! دەستخۆش',
+    kmr: 'Bersiva rast! Destxweş',
+    en: 'Correct Answer! Well done.',
+  });
+
+  const incorrectBadge = loc({
+    ar: 'إجابة خاطئة',
+    bad: 'بەرسڤا شاشە',
+    ku: 'وەڵامی هەڵەیە',
+    kmr: 'Bersiva şaş',
+    en: 'Incorrect Answer.',
+  });
+
+  const nextQuestionBtn = loc({
+    ar: 'السؤال التالي',
+    bad: 'پسیارا دیتر',
+    ku: 'پرسیاری دواتر',
+    kmr: 'Pirsa Paşê',
+    en: 'Next Question',
+  });
+
+  const viewFinalScoreBtn = loc({
+    ar: 'عرض النتيجة النهائية',
+    bad: 'نیشاندانا ئەنجامێ دووماهیێ',
+    ku: 'پیشاندانی ئەنجامی کۆتایی',
+    kmr: 'Nîşandana Encamê',
+    en: 'View Final Score',
+  });
+
+  const quizCompletedTitle = loc({
+    ar: 'اكتمل الاختبار العلمي!',
+    bad: 'تاقیکرنا زانستی تەمام بوو!',
+    ku: 'تاقیکردنەوەی زانستی تەواو بوو!',
+    kmr: 'Taqîkirina Zanistî Temam Bû!',
+    en: 'Quiz Completed!',
+  });
+
+  const quizCompletedSub = loc({
+    ar: 'نتيجتك النهائية في استيعاب مفاهيم التجربة:',
+    bad: 'ئەنجامێ تە یێ دووماهیێ د تێگەهشتنا چەمکێن تاقیکرنێ دا:',
+    ku: 'ئەنجامی کۆتاییت لە تێگەیشتنی چەمکەکانی تاقیکردنەوە:',
+    kmr: 'Encama we ya dawî di têgihîştina ceribandinê de:',
+    en: 'Your final score in understanding this experiment:',
+  });
+
+  const retryQuizLabel = loc({
+    ar: 'إعادة الاختبار',
+    bad: 'دووبارەکرنا تاقیکرنێ',
+    ku: 'دووبارەکردنەوەی تاقیکردنەوە',
+    kmr: 'Dîsa Taqîkirin',
+    en: 'Retry Quiz',
+  });
+
+  const scoreEvaluation =
+    scorePercent >= 80
+      ? loc({
+          ar: 'ممتاز!',
+          bad: 'گەلەک باش و نایاب!',
+          ku: 'ناوازەیە!',
+          kmr: 'Gelek baş!',
+          en: 'Excellent!',
+        })
+      : scorePercent >= 50
+      ? loc({
+          ar: 'جيد جداً',
+          bad: 'باشە',
+          ku: 'زۆر باش',
+          kmr: 'Baş',
+          en: 'Good Job',
+        })
+      : loc({
+          ar: 'راجع النظرية وحاول مجدداً',
+          bad: 'سەحکە بیردۆزێ و جارەکا دی تاقی بکە',
+          ku: 'سەیری تیۆرییەکە بکەوە و دووبارە تاقی بکەرەوە',
+          kmr: 'Teoriyê kontrol bike û dîsa biceribîne',
+          en: 'Review Theory & Try Again',
+        });
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl overflow-hidden transition-all duration-300">
@@ -381,9 +826,7 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
               <span>{titleText}</span>
             </h2>
             <span className="text-xs text-purple-400 font-semibold block mt-0.5">
-              {language === 'ar'
-                ? `أسئلة تفاعلية (${questions.length} أسئلة)`
-                : `Interactive Quiz (${questions.length} Questions)`}
+              {subtitleQuestions}
             </span>
           </div>
         </div>
@@ -394,13 +837,7 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
           aria-label="Toggle Quiz Panel"
         >
           <span className="hidden sm:inline">
-            {isExpanded
-              ? language === 'ar'
-                ? 'طَيّ'
-                : 'Collapse'
-              : language === 'ar'
-              ? 'توسيع'
-              : 'Expand'}
+            {isExpanded ? collapseLabel : expandLabel}
           </span>
           {isExpanded ? (
             <ChevronUp className="w-4 h-4 text-purple-400" />
@@ -417,11 +854,7 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
             <div className="space-y-4">
               {/* Progress Header */}
               <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
-                <span>
-                  {language === 'ar'
-                    ? `السؤال ${currentIndex + 1} من ${questions.length}`
-                    : `Question ${currentIndex + 1} of ${questions.length}`}
-                </span>
+                <span>{questionProgressText}</span>
                 <span className="text-purple-400 font-mono font-bold">
                   {Math.round(((currentIndex + 1) / questions.length) * 100)}%
                 </span>
@@ -507,9 +940,7 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
                   className="w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm bg-purple-600 hover:bg-purple-500 text-white disabled:opacity-40 disabled:hover:bg-purple-600 transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>
-                    {language === 'ar' ? 'تأكيد الإجابة' : 'Check Answer'}
-                  </span>
+                  <span>{confirmAnswerLabel}</span>
                 </button>
               ) : (
                 <div className="space-y-3 pt-2">
@@ -525,20 +956,12 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
                       {selectedOption === currentQuestion.correctIndex ? (
                         <>
                           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>
-                            {language === 'ar'
-                              ? 'إجابة صحيحة! أحسنت'
-                              : 'Correct Answer! Well done.'}
-                          </span>
+                          <span>{correctBadge}</span>
                         </>
                       ) : (
                         <>
                           <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                          <span>
-                            {language === 'ar'
-                              ? 'إجابة خاطئة'
-                              : 'Incorrect Answer.'}
-                          </span>
+                          <span>{incorrectBadge}</span>
                         </>
                       )}
                     </div>
@@ -555,14 +978,10 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
                   >
                     <span>
                       {currentIndex < questions.length - 1
-                        ? language === 'ar'
-                          ? 'السؤال التالي'
-                          : 'Next Question'
-                        : language === 'ar'
-                        ? 'عرض النتيجة النهائية'
-                        : 'View Final Score'}
+                        ? nextQuestionBtn
+                        : viewFinalScoreBtn}
                     </span>
-                    {language === 'ar' ? (
+                    {language === 'ar' || language === 'ku' || language === 'bad' ? (
                       <ChevronLeft className="w-4 h-4" />
                     ) : (
                       <ChevronRight className="w-4 h-4" />
@@ -580,14 +999,10 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
 
               <div className="space-y-1">
                 <h3 className="text-base sm:text-lg font-bold text-slate-100">
-                  {language === 'ar'
-                    ? 'اكتمل الاختبا العلمِي!'
-                    : 'Quiz Completed!'}
+                  {quizCompletedTitle}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  {language === 'ar'
-                    ? 'نتيجتك النهائية في استيعاب مفاهيم التجربة:'
-                    : 'Your final score in understanding this experiment:'}
+                  {quizCompletedSub}
                 </p>
               </div>
 
@@ -597,18 +1012,7 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
                   {scoreCount} / {questions.length}
                 </div>
                 <div className="text-xs font-bold text-slate-400 mt-1">
-                  {scorePercent}%{' '}
-                  {scorePercent >= 80
-                    ? language === 'ar'
-                      ? 'ممتاز!'
-                      : 'Excellent!'
-                    : scorePercent >= 50
-                    ? language === 'ar'
-                      ? 'جيد جداً'
-                      : 'Good Job'
-                    : language === 'ar'
-                    ? 'راجع النظرية وحاول مجدداً'
-                    : 'Review Theory & Try Again'}
+                  {scorePercent}% {scoreEvaluation}
                 </div>
               </div>
 
@@ -620,11 +1024,7 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ experiment }) => {
                   className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-purple-600 hover:bg-purple-500 text-white transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>
-                    {language === 'ar'
-                      ? 'إعادة الاختبار'
-                      : 'Retry Quiz'}
-                  </span>
+                  <span>{retryQuizLabel}</span>
                 </button>
               </div>
             </div>

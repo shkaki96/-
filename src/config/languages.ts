@@ -2,7 +2,7 @@ import { Language, LanguageConfig } from '../types/language';
 
 export const DEFAULT_LANGUAGE: Language = 'ar';
 
-export const SUPPORTED_LANGUAGES: Language[] = ['ar', 'en', 'ku', 'kmr'];
+export const SUPPORTED_LANGUAGES: Language[] = ['ar', 'en', 'ku', 'kmr', 'bad'];
 
 export const LANGUAGE_CONFIGS: Record<Language, LanguageConfig> = {
   ar: {
@@ -28,6 +28,12 @@ export const LANGUAGE_CONFIGS: Record<Language, LanguageConfig> = {
     name: 'Kurmanji Kurdish',
     nativeName: 'Kurdî (Kurmancî)',
     direction: 'ltr',
+  },
+  bad: {
+    code: 'bad',
+    name: 'Badini Kurdish',
+    nativeName: 'بادینی',
+    direction: 'rtl',
   },
 };
 

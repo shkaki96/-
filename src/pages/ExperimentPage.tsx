@@ -154,6 +154,7 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
         en: 'Time',
         ku: 'کات',
         kmr: 'Deman',
+        bad: 'دەمێ بوری',
       }),
       symbol: 't',
       value: elapsedTime.toFixed(2),
@@ -165,35 +166,35 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
     if (id.includes('pendulum') || id.includes('harmonic') || data.angularVelocity !== undefined) {
       const angleVal = data.angleDeg ?? (typeof data.angle === 'number' ? Number(((data.angle * 180) / Math.PI).toFixed(1)) : 0);
       list.push({
-        label: getLocalizedText({ ar: 'زاوية الإزاحة', en: 'Angle', ku: 'گۆشە', kmr: 'Goşe' }),
+        label: getLocalizedText({ ar: 'زاوية الإزاحة', en: 'Angle', ku: 'گۆشە', kmr: 'Goşe', bad: 'گۆشەیا لادانێ' }),
         symbol: 'θ',
         value: angleVal,
         unit: '°',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'السرعة الزاوية', en: 'Angular Velocity', ku: 'خێرایی گۆشەیی', kmr: 'Leza Goşeyî' }),
+        label: getLocalizedText({ ar: 'السرعة الزاوية', en: 'Angular Velocity', ku: 'خێرایی گۆشەیی', kmr: 'Leza Goşeyî', bad: 'لەزاتیا گۆشەیی' }),
         symbol: 'ω',
         value: data.angularVelocity !== undefined ? String(data.angularVelocity) : '0.00',
         unit: 'rad/s',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'السرعة الخطية', en: 'Linear Velocity', ku: 'خێرایی هێڵی', kmr: 'Leza Hêlî' }),
+        label: getLocalizedText({ ar: 'السرعة الخطية', en: 'Linear Velocity', ku: 'خێرایی هێڵی', kmr: 'Leza Hêlî', bad: 'لەزاتیا هێلی' }),
         symbol: 'v',
         value: data.linearVelocity !== undefined ? String(data.linearVelocity) : '0.00',
         unit: 'm/s',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'زمن الدورة', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê' }),
+        label: getLocalizedText({ ar: 'زمن الدورة', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê', bad: 'دەمێ خولێ' }),
         symbol: 'T',
         value: data.period !== undefined ? String(data.period) : '0.00',
         unit: 's',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'التردد', en: 'Frequency', ku: 'فریکوێنسی', kmr: 'Frîkans' }),
+        label: getLocalizedText({ ar: 'التردد', en: 'Frequency', ku: 'فریکوێنسی', kmr: 'Frîkans', bad: 'فریکوێنس' }),
         symbol: 'f',
         value: data.frequency !== undefined ? String(data.frequency) : '0.00',
         unit: 'Hz',
@@ -203,35 +204,35 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
     // 3. Optics / Refraction
     else if (category === 'optics' || id.includes('optics') || id.includes('refraction') || data.refractedAngle !== undefined) {
       list.push({
-        label: getLocalizedText({ ar: 'زاوية السقوط', en: 'Incident Angle', ku: 'گۆشەی کەوتن', kmr: 'Goşeya Ketinê' }),
+        label: getLocalizedText({ ar: 'زاوية السقوط', en: 'Incident Angle', ku: 'گۆشەی کەوتن', kmr: 'Goşeya Ketinê', bad: 'گۆشەیا کەفتنێ' }),
         symbol: 'θ₁',
         value: data.incidentAngle !== undefined ? String(data.incidentAngle) : String(params.incidentAngle ?? params.var1 ?? 30),
         unit: '°',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'زاوية الانكسار', en: 'Refracted Angle', ku: 'گۆشەی تێکشکاندن', kmr: 'Goşeya Şikestinê' }),
+        label: getLocalizedText({ ar: 'زاوية الانكسار', en: 'Refracted Angle', ku: 'گۆشەی تێکشکاندن', kmr: 'Goşeya Şikestinê', bad: 'گۆشەیا شکانەڤێ' }),
         symbol: 'θ₂',
         value: typeof data.refractedAngle === 'number' ? `${data.refractedAngle}°` : String(data.refractedAngle ?? '0°'),
         unit: '',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'الزاوية الحرجة', en: 'Critical Angle', ku: 'گۆشەی ئاستەنگ', kmr: 'Goşeya Krîtîk' }),
+        label: getLocalizedText({ ar: 'الزاوية الحرجة', en: 'Critical Angle', ku: 'گۆشەی ئاستەنگ', kmr: 'Goşeya Krîtîk', bad: 'گۆشەیا رەخنەگر' }),
         symbol: 'θc',
         value: typeof data.criticalAngle === 'number' ? `${data.criticalAngle}°` : String(data.criticalAngle ?? 'N/A'),
         unit: '',
         highlight: false,
       });
       list.push({
-        label: getLocalizedText({ ar: 'سرعة الضوء (وسط 1)', en: 'Light Speed (Med 1)', ku: 'خێرایی ڕووناکی (ناوەند 1)', kmr: 'Leza Ronahiyê (Navend 1)' }),
+        label: getLocalizedText({ ar: 'سرعة الضوء (وسط 1)', en: 'Light Speed (Med 1)', ku: 'خێرایی ڕووناکی (ناوەند 1)', kmr: 'Leza Ronahiyê (Navend 1)', bad: 'لەزاتیا رووناهییێ (ناڤەندێ ١)' }),
         symbol: 'v₁',
         value: data.lightSpeedM1 !== undefined ? `${data.lightSpeedM1}×10⁸` : '3.00×10⁸',
         unit: 'm/s',
         highlight: false,
       });
       list.push({
-        label: getLocalizedText({ ar: 'سرعة الضوء (وسط 2)', en: 'Light Speed (Med 2)', ku: 'خێرایی ڕووناکی (ناوەند 2)', kmr: 'Leza Ronahiyê (Navend 2)' }),
+        label: getLocalizedText({ ar: 'سرعة الضوء (وسط 2)', en: 'Light Speed (Med 2)', ku: 'خێرایی ڕووناکی (ناوەند 2)', kmr: 'Leza Ronahiyê (Navend 2)', bad: 'لەزاتیا رووناهییێ (ناڤەندێ ٢)' }),
         symbol: 'v₂',
         value: data.lightSpeedM2 !== undefined ? `${data.lightSpeedM2}×10⁸` : '2.00×10⁸',
         unit: 'm/s',
@@ -241,28 +242,28 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
     // 4. Electricity / Circuits
     else if (category === 'electricity' || id.includes('circuit') || id.includes('ohm') || data.current !== undefined) {
       list.push({
-        label: getLocalizedText({ ar: 'التيار الكهربائي', en: 'Current', ku: 'تەزووی کارەبا', kmr: 'Tevgera Elektrîkî' }),
+        label: getLocalizedText({ ar: 'التيار الكهربائي', en: 'Current', ku: 'تەزووی کارەبا', kmr: 'Tevgera Elektrîkî', bad: 'تەزوویێ کارەبێ' }),
         symbol: 'I',
         value: data.current !== undefined ? String(data.current) : '0.00',
         unit: 'A',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'القدرة الكهربائية', en: 'Power Dissipation', ku: 'توانی کارەبایی', kmr: 'Hêza Elektrîkî' }),
+        label: getLocalizedText({ ar: 'القدرة الكهربائية', en: 'Power Dissipation', ku: 'توانی کارەبایی', kmr: 'Hêza Elektrîkî', bad: 'شیانا کارەبایی' }),
         symbol: 'P',
         value: data.power !== undefined ? String(data.power) : '0.00',
         unit: 'W',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'الشحنة المنقولة', en: 'Transferred Charge', ku: 'باری گواستراوە', kmr: 'Bara Veguhastî' }),
+        label: getLocalizedText({ ar: 'الشحنة المنقولة', en: 'Transferred Charge', ku: 'باری گواستراوە', kmr: 'Bara Veguhastî', bad: 'بارگەیێ گوهاستراو' }),
         symbol: 'Q',
         value: data.chargeTransferred !== undefined ? String(data.chargeTransferred) : '0.00',
         unit: 'C',
         highlight: false,
       });
       list.push({
-        label: getLocalizedText({ ar: 'الطاقة المستهلكة', en: 'Energy Dissipated', ku: 'توانای بەکاربراو', kmr: 'Anarşiya Windabûyî' }),
+        label: getLocalizedText({ ar: 'الطاقة المستهلكة', en: 'Energy Dissipated', ku: 'توانای بەکاربراو', kmr: 'Anarşiya Windabûyî', bad: 'وزا بەلاڤبووی' }),
         symbol: 'E',
         value: data.energyDissipated !== undefined ? String(data.energyDissipated) : '0.00',
         unit: 'J',
@@ -272,21 +273,21 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
     // 5. Thermodynamics / Gas
     else if (category === 'thermodynamics' || id.includes('heat') || id.includes('thermo') || data.pressure !== undefined) {
       list.push({
-        label: getLocalizedText({ ar: 'الضغط', en: 'Pressure', ku: 'پەستان', kmr: 'Zext' }),
+        label: getLocalizedText({ ar: 'الضغط', en: 'Pressure', ku: 'پەستان', kmr: 'Zext', bad: 'پەستان' }),
         symbol: 'P',
         value: data.pressure !== undefined ? String(data.pressure) : '101.3',
         unit: 'kPa',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'الطاقة الداخلية', en: 'Internal Energy', ku: 'توانای ناوەکی', kmr: 'Anarşiya Navxweyî' }),
+        label: getLocalizedText({ ar: 'الطاقة الداخلية', en: 'Internal Energy', ku: 'توانای ناوەکی', kmr: 'Anarşiya Navxweyî', bad: 'وزا ناڤخۆیی' }),
         symbol: 'U',
         value: data.internalEnergy !== undefined ? String(data.internalEnergy) : '0.0',
         unit: 'J',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'الشغل المنجز', en: 'Work Done', ku: 'کاری ئەنجامدراو', kmr: 'Kara Pêkhatî' }),
+        label: getLocalizedText({ ar: 'الشغل المنجز', en: 'Work Done', ku: 'کاری ئەنجامدراو', kmr: 'Kara Pêkhatî', bad: 'ئیشێ ئەنجامدای' }),
         symbol: 'W',
         value: data.workDone !== undefined ? String(data.workDone) : '0.00',
         unit: 'J',
@@ -296,28 +297,28 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
     // 6. Waves / Sound
     else if (category === 'waves' || id.includes('wave') || id.includes('sound') || data.waveSpeed !== undefined) {
       list.push({
-        label: getLocalizedText({ ar: 'سرعة الموجة', en: 'Wave Speed', ku: 'خێرایی شەپۆل', kmr: 'Leza Şepolê' }),
+        label: getLocalizedText({ ar: 'سرعة الموجة', en: 'Wave Speed', ku: 'خێرایی شەپۆل', kmr: 'Leza Şepolê', bad: 'لەزاتیا پێلێ' }),
         symbol: 'v',
         value: data.waveSpeed !== undefined ? String(data.waveSpeed) : '0.00',
         unit: 'm/s',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'زمن الدورة', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê' }),
+        label: getLocalizedText({ ar: 'زمن الدورة', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê', bad: 'دەمێ خولێ' }),
         symbol: 'T',
         value: data.period !== undefined ? String(data.period) : '0.00',
         unit: 's',
         highlight: true,
       });
       list.push({
-        label: getLocalizedText({ ar: 'التردد', en: 'Frequency', ku: 'فریکوێنسی', kmr: 'Frîkans' }),
+        label: getLocalizedText({ ar: 'التردد', en: 'Frequency', ku: 'فریکوێنسی', kmr: 'Frîkans', bad: 'فریکوێنس' }),
         symbol: 'f',
         value: data.frequency !== undefined ? String(data.frequency) : String(params.frequency ?? params.var1 ?? 2),
         unit: 'Hz',
         highlight: false,
       });
       list.push({
-        label: getLocalizedText({ ar: 'الطول الموجي', en: 'Wavelength', ku: 'درێژی شەپۆل', kmr: 'Dirêjiya Şepolê' }),
+        label: getLocalizedText({ ar: 'الطول الموجي', en: 'Wavelength', ku: 'درێژی شەپۆل', kmr: 'Dirêjiya Şepolê', bad: 'درێژیا پێلێ' }),
         symbol: 'λ',
         value: data.wavelength !== undefined ? String(data.wavelength) : String(params.wavelength ?? 1.5),
         unit: 'm',
@@ -339,7 +340,7 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
         });
       } else {
         list.push({
-          label: getLocalizedText({ ar: 'طاقة النظام', en: 'System Energy', ku: 'توانای سیستم', kmr: 'Anarşiya Sîstemê' }),
+          label: getLocalizedText({ ar: 'طاقة النظام', en: 'System Energy', ku: 'توانای سیستم', kmr: 'Anarşiya Sîstemê', bad: 'وزا سیستەمی' }),
           symbol: 'E',
           value: data.energy !== undefined ? String(data.energy) : '0.0',
           unit: 'J',

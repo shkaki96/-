@@ -13,48 +13,56 @@ export const PROTOTYPE_EXPERIMENT: Experiment = {
     en: 'Simple Pendulum Period and Gravity',
     ku: 'کاتی خولی پەندۆلی سادە و کێشکردن',
     kmr: 'Dema Dorê ya Pêndula Hêsan û Gravîtasyon',
+    bad: 'دەمێ خولێ و تاودانا کێشکرنێ د پەندۆلی دا',
   },
   description: {
     ar: 'دراسة الحركة التوافقية البسيطة وحساب زمن الدورة وعلاقتها بطول الخيط وتسارع الجاذبية.',
     en: 'Study simple harmonic motion, period calculations, and dependence on string length and gravitational acceleration.',
     ku: 'لێکۆڵینەوە لە جووڵەی هارمۆنیکی سادە و هەژمارکردنی کاتی خول و پەیوەندی بە درێژی پەت و خێرایی کێشکردن.',
     kmr: 'Lêkolîna tevgera harmonîk a hêsan û hesabkirina dema dorê û pêwendiya wê bi dirêjiya ben û lezkirina erdê re.',
+    bad: 'ڤەکۆلین ل سەر لڤینا هارمۆنیکا سادە و هەژمارکرنا دەمێ خولێ و گرێدانا وێ ب درێژیا دەزی و تاودانا کێشکرنێ.',
   },
   howItWorks: {
     ar: 'عند إزاحة البندول عن موضع اتزانه وتركه حر الحركة، تقوم مكونة مركب الوزن المماسة للمسار بإعادة الكتلة نحو موضع الاتزان.',
     en: 'When displaced from equilibrium, gravity provides a restoring force proportional to the angle, accelerating the mass back toward the center position.',
     ku: 'کاتێک پەندۆل لە شوێنی هاوسەنگی خۆی لادەدرێت، هێزی کێشکردن هێزێکی گەڕێنەرەوە دروست دەکات بۆ گەڕاندنەوەی بۆ ناوەند.',
     kmr: 'Gava pêndula ji cîhê xwe yê hevsengiyê tê veguhastin, hêza gravîtasyonê hêzek vedigere çêdike ku ber bi navendê ve dibe.',
+    bad: 'دەمێ پەندۆل ژ جهێ هه‌ڤسه‌نگیا خۆ دهێتە لادان، هێزا کێشکرنێ هێزەکا ڤەگەڕێنەر پەیدا دکەت بۆ زڤڕاندنا بارستایی بەرەڤ ناڤەندی.',
   },
   whatHappened: {
     ar: 'تتحول الطاقة الكامنة في أقصى إزاحة إلى طاقة حركية بالكامل عند المرور بموضع الاتزان، مما تؤدي لإعادة الدورة بشكل دوري.',
     en: 'Potential energy at maximum amplitude continuously converts into kinetic energy at the equilibrium point, driving periodic oscillation.',
     ku: 'توانای ئامادە لە بەرزترین خاڵدا دەبێتە توانای جووڵە لە خاڵی هاوسەنگی، کە دەبێتە هۆی جووڵەی خولی بەرردەوام.',
     kmr: 'Anarşiya pozîsyonê di xala herî bilind de dibe anarşiya tevgerê di xala hevsengiyê de, û tevgera dewranî pêk tîne.',
+    bad: 'وزا عەمبارکری (کاتی) ل بلندترین خال دەربازی وزا لڤینێ دبیت ل خالا هه‌ڤسه‌نگیێ، و دبیتە ئەگەرێ لڤینا خولی یا بەردەوام.',
   },
   result: {
     ar: 'زمن دورة البندول البسيط يعتمد فقط على طول الخيط وتسارع الجاذبية، ولا يعتمد على كتلة الجسم أو الزوايا الصغيرة.',
     en: 'The period of a simple pendulum depends strictly on string length and gravitational acceleration, remaining independent of mass for small angles.',
     ku: 'کاتی خولی پەندۆل تەنها بەستراوە بە درێژی پەت و کێشکردنەوە، و بەستراو نییە بە بارستە لە گۆشە بچووکەکاندا.',
     kmr: 'Dema dorê ya pêndulê tenê bi dirêjiya ben û lezkirina erdê re girêdayî ye, û ji giranî di goşeyên piçûk de serbixwe ye.',
+    bad: 'دەمێ خولا پەندۆلی بتنێ ب درێژیا دەزی و تاودانا کێشکرنێ ڤە گرێداییە، و بۆ گۆشەیێن بچووک ب بارستایی ڤە گرێدایی نینە.',
   },
   inputs: {
     ar: ['طول الخيط (L)', 'تسارع الجاذبية الأرضية (g)', 'الكتلة (m)', 'زاوية الإزاحة الإبتدائية (θ)'],
     en: ['String Length (L)', 'Gravitational Acceleration (g)', 'Mass (m)', 'Initial Displacement Angle (θ)'],
-    ku: ['درێژی پەت (L)', 'تاودانی کێشکردن (g)', 'بڕی ماددە (m)', 'گۆشەی سەرەتایی (θ)'],
+    ku: ['درێژی پەت (L)', 'تاودانی کێشکردن (g)', 'بارستایی (m)', 'گۆشەی لادانی سەرەتایی (θ)'],
     kmr: ['Dirêjiya Ben (L)', 'Lezkirina Erdê (g)', 'Giranî (m)', 'Goşeya Destpêkê (θ)'],
+    bad: ['درێژیا دەزی (L)', 'تاودانا کێشکرنا ئەردی (g)', 'بارستایی (m)', 'گۆشەیا لادانا دەستپێکێ (θ)'],
   },
   outputs: {
     ar: ['زمن الدورة (T)', 'التردد (f)', 'الطاقة الحركية (Ek)', 'الطاقة الكامنة (Ep)'],
     en: ['Period (T)', 'Frequency (f)', 'Kinetic Energy (Ek)', 'Potential Energy (Ep)'],
-    ku: ['کاتی خول (T)', 'فریکوێنسی (f)', 'توانای جووڵە (Ek)', 'توانای ئامادە (Ep)'],
+    ku: ['کاتی خول (T)', 'لەرەلەر (f)', 'وزەی جووڵە (Ek)', 'وزەی شیاو (Ep)'],
     kmr: ['Dema Dorê (T)', 'Frîkans (f)', 'Anarşiya Tevgerê (Ek)', 'Anarşiya Pozîsyonê (Ep)'],
+    bad: ['دەمێ خولێ (T)', 'فریکوێنس (f)', 'وزا لڤینێ (Ek)', 'وزا عەمبارکری (Ep)'],
   },
   explanation: {
     ar: 'يتكون البندول البسيط من كتلة نقطية معلقة بخيط مهمل الكتلة غير قابل للاستطالة. تخضع حركته لقانون الحركة التوافقية البسيطة عند الزوايا الصغيرة.',
     en: 'A simple pendulum consists of a point mass suspended from a massless, inextensible string. Under small angle approximations, it exhibits Simple Harmonic Motion (SHM).',
     ku: 'پەندۆلی سادە پێکدێت لە بڕە ماددەیەکی هەڵواستراو بە پەتێکی بێ کێش. لە گۆشە بچووکەکاندا جووڵەکەی گوێڕایەڵی یاسای هارمۆنیکی سادەیە.',
     kmr: 'Pêndula hêsan ji giraniyekî rawestayî li ser benekî bê-giranî pêk tê. Di goşeyên piçûk de tevgera wê harmonîk e.',
+    bad: 'پەندۆلێ سادە ژ بارستاییەکێ دهێتە پێکئینان کو ب دەزیەکێ بێ کێش و نەکێشراو ڤە هەلاویستییە. لڤینا وی ل گۆشەیێن بچووک یاسایا لڤینا هارمۆنیکا سادە پەیڕەو دکەت.',
   },
   procedure: {
     ar: [
@@ -81,12 +89,18 @@ export const PROTOTYPE_EXPERIMENT: Experiment = {
       'Giraniyê ber bi goşeyek piçûk ve bikşîne.',
       'Simulasyonê bide destpêkirin û dema dorê bipîve.',
     ],
+    bad: [
+      'درێژیا دەزی دیار بکە ب رێکا خشۆکێ (سلایدەر).',
+      'تاودانا کێشکرنێ هەلبژێرە (ئەرد، هەیڤ، یان یێن دی).',
+      'بارستایی رابکێشە بۆ گۆشەیەکا لادانێ یا بچووک (کێمتر ژ ١٥ پلە).',
+      'دەست ب سیمیولەیشنێ بکە و دەمێ خولێ بپێڤە.',
+    ],
   },
   physicalLaw: 'T = 2π · √(L / g)',
   parameters: [
     {
       id: 'length',
-      label: { ar: 'طول الخيط', en: 'String Length', ku: 'درێژی پەت', kmr: 'Dirêjiya Ben' },
+      label: { ar: 'طول الخيط', en: 'String Length', ku: 'درێژی پەت', kmr: 'Dirêjiya Ben', bad: 'درێژیا دەزی' },
       unit: 'm',
       min: 0.1,
       max: 5.0,
@@ -95,7 +109,7 @@ export const PROTOTYPE_EXPERIMENT: Experiment = {
     },
     {
       id: 'gravity',
-      label: { ar: 'تسارع الجاذبية', en: 'Gravity', ku: 'کێشکردن', kmr: 'Lezkirina Erdê' },
+      label: { ar: 'تسارع الجاذبية', en: 'Gravity', ku: 'تاودانی کێشکردن', kmr: 'Lezkirina Erdê', bad: 'تاودانا کێشکرنێ' },
       unit: 'm/s²',
       min: 1.0,
       max: 25.0,
@@ -104,7 +118,7 @@ export const PROTOTYPE_EXPERIMENT: Experiment = {
     },
     {
       id: 'mass',
-      label: { ar: 'الكتلة', en: 'Mass', ku: 'بارسته', kmr: 'Giranî' },
+      label: { ar: 'الكتلة', en: 'Mass', ku: 'بارستایی', kmr: 'Giranî', bad: 'بارستایی' },
       unit: 'kg',
       min: 0.1,
       max: 10.0,
@@ -113,7 +127,7 @@ export const PROTOTYPE_EXPERIMENT: Experiment = {
     },
     {
       id: 'initialAngle',
-      label: { ar: 'الزاوية الابتدائية', en: 'Initial Angle', ku: 'گۆشەی سەرەتایی', kmr: 'Goşeya Destpêکê' },
+      label: { ar: 'الزاوية الابتدائية', en: 'Initial Angle', ku: 'گۆشەی لادانی سەرەتایی', kmr: 'Goşeya Destpêکê', bad: 'گۆشەیا دەستپێکێ' },
       unit: '°',
       min: 1,
       max: 45,
@@ -124,13 +138,13 @@ export const PROTOTYPE_EXPERIMENT: Experiment = {
   outputMetrics: [
     {
       id: 'period',
-      label: { ar: 'زمن الدورة', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê' },
+      label: { ar: 'زمن الدورة', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê', bad: 'دەمێ خولێ' },
       unit: 's',
       symbol: 'T',
     },
     {
       id: 'frequency',
-      label: { ar: 'التردد', en: 'Frequency', ku: 'فریکوێنسی', kmr: 'Frîkans' },
+      label: { ar: 'التردد', en: 'Frequency', ku: 'لەرەلەر (فریکوێنسی)', kmr: 'Frîkans', bad: 'فریکوێنس' },
       unit: 'Hz',
       symbol: 'f',
     },

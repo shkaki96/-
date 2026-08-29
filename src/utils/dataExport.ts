@@ -73,7 +73,7 @@ export function exportToCSV(payload: ExperimentExportPayload): void {
  * Opens a clean, formatted Printable Lab Report in a new window suitable for saving to PDF via browser print.
  */
 export function exportToPrintableReport(payload: ExperimentExportPayload): void {
-  const isRTL = payload.language === 'ar' || payload.language === 'ku';
+  const isRTL = payload.language === 'ar' || payload.language === 'ku' || payload.language === 'bad';
   const dir = isRTL ? 'rtl' : 'ltr';
 
   const html = `
