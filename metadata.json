@@ -1,0 +1,6 @@
+{
+  "name": "TAQ - Physics Virtual Lab",
+  "description": "A modern, multi-lingual educational virtual physics laboratory supporting interactive simulations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
