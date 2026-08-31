@@ -1,12 +1,14 @@
 import React from 'react';
+import { Experiment } from '../../types/experiment';
 import { ISimulationEngine } from '../../types/simulation';
-import { SimulationCanvas } from '../../simulations/core/SimulationCanvas';
+import { SimulationCanvas as VisualSimulationCanvas } from './SimulationCanvas';
+import { SimulationCanvas as CoreEngineCanvas } from '../../simulations/core/SimulationCanvas';
 import { useTranslation } from '../../i18n/useTranslation';
-import { Button } from '../ui/Button';
 import { Play, Pause, RotateCcw, Activity } from 'lucide-react';
 
 export interface SimulationViewportProps<TParams extends Record<string, number>> {
-  engine: ISimulationEngine<TParams, Record<string, unknown>>;
+  engine?: ISimulationEngine<TParams, Record<string, unknown>>;
+  experiment?: Experiment;
   parameters: TParams;
   isRunning: boolean;
   simulationStatus?: 'READY' | 'RUNNING' | 'PAUSED';
@@ -14,10 +16,12 @@ export interface SimulationViewportProps<TParams extends Record<string, number>>
   onPause: () => void;
   onReset: () => void;
   physicalLaw: string;
+  onOutputsUpdate?: (outputs: Record<string, number>) => void;
 }
 
 export function SimulationViewport<TParams extends Record<string, number>>({
   engine,
+  experiment,
   parameters,
   isRunning,
   simulationStatus,
@@ -25,6 +29,7 @@ export function SimulationViewport<TParams extends Record<string, number>>({
   onPause,
   onReset,
   physicalLaw,
+  onOutputsUpdate,
 }: SimulationViewportProps<TParams>) {
   const { t } = useTranslation();
 
@@ -45,8 +50,22 @@ export function SimulationViewport<TParams extends Record<string, number>>({
     <div className="bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3.5">
       {/* Simulation Dedicated Stage */}
       <div className="relative rounded-xl overflow-hidden bg-slate-950 border border-slate-800/80 shadow-inner">
-        <SimulationCanvas engine={engine} parameters={parameters} className="h-[280px] sm:h-[360px] md:h-[420px] w-full" />
-        
+        {experiment ? (
+          <VisualSimulationCanvas
+            experiment={experiment}
+            params={parameters}
+            isRunning={isRunning}
+            onOutputsUpdate={onOutputsUpdate}
+            className="h-[280px] sm:h-[360px] md:h-[420px] w-full"
+          />
+        ) : engine ? (
+          <CoreEngineCanvas
+            engine={engine}
+            parameters={parameters}
+            className="h-[280px] sm:h-[360px] md:h-[420px] w-full"
+          />
+        ) : null}
+
         {/* Status Indicator Badge */}
         <div className="absolute top-3 left-3 flex items-center gap-2 bg-slate-900/90 backdrop-blur px-3 py-1.5 rounded-full border border-slate-700/80 text-xs font-mono font-bold text-slate-200 shadow-md select-none">
           <span

@@ -1,4 +1,4 @@
-import { Experiment } from '../../types/experiment';
+import { Experiment, PhysicsParameter, PhysicsOutput } from '../../types/experiment';
 import { PROTOTYPE_EXPERIMENT } from './prototypeExperiment';
 
 /**
@@ -165,27 +165,715 @@ function createExperiment(
       kmr: ['Sazkirina parametreyan', 'Çavdêriya encaman', 'Torkirina daneyan'],
       bad: ['رێکخستنا پارامیتەران', 'چاڤدێریکرنا بەرسڤا دەرکەفتیان', 'تۆمارکرنا خالێن داتایێ'],
     },
-    parameters: [
-      {
-        id: 'var1',
-        label: { en: 'Primary Parameter', ar: 'المعيار الأساسي', ku: 'پارامیتەری سەرەکی', kmr: 'Parametreya Serekî', bad: 'پارامیتەرێ سەرەکی' },
-        unit: 'unit',
-        min: 1,
-        max: 100,
-        step: 1,
-        defaultValue: 50,
-      },
-    ],
-    outputMetrics: [
-      {
-        id: 'out1',
-        label: { en: 'Output Metric', ar: 'مقياس المخرجات', ku: 'پێوەری دەرئەنجام', kmr: 'Pîvana Encamê', bad: 'پێڤەرا دەرئەنجامی' },
-        unit: 'SI',
-        symbol: 'R',
-      },
-    ],
+    parameters: getParametersForExperiment(code, category),
+    outputMetrics: getOutputMetricsForExperiment(code, category),
     supportedRenderers: ['canvas2d'],
   };
+}
+
+function getParametersForExperiment(code: number, category: string): PhysicsParameter[] {
+  switch (code) {
+    case 1:
+      return [
+        {
+          id: 'heatAdded',
+          label: { en: 'Heat Added (Q)', ar: 'الحرارة المضافة (Q)', ku: 'گەرمی زیادکراو (Q)', kmr: 'Germiya Zêdekirî (Q)', bad: 'گەرمیا زێدەکری (Q)' },
+          unit: 'J',
+          min: -500,
+          max: 1000,
+          step: 25,
+          defaultValue: 400,
+        },
+        {
+          id: 'workDone',
+          label: { en: 'Work Done by Gas (W)', ar: 'الشغل المنجز من الغاز (W)', ku: 'کاری ئەنجامدراو (W)', kmr: 'Kara Hatiye Kirin (W)', bad: 'کارێ هاتیە کرن (W)' },
+          unit: 'J',
+          min: -500,
+          max: 1000,
+          step: 25,
+          defaultValue: 150,
+        },
+      ];
+    case 2:
+      return [
+        {
+          id: 'focalLength',
+          label: { en: 'Focal Length (f)', ar: 'البعد البؤري (f)', ku: 'دووری بؤری (f)', kmr: 'Dûriya Balgehê (f)', bad: 'دویریا بالگەهی (f)' },
+          unit: 'cm',
+          min: -50,
+          max: 50,
+          step: 1,
+          defaultValue: 20,
+        },
+        {
+          id: 'objectDistance',
+          label: { en: 'Object Distance (dₒ)', ar: 'بعد الجسم (dₒ)', ku: 'دووری تەن (dₒ)', kmr: 'Dûriya Tiştî (dₒ)', bad: 'دویریا تەنێ (dₒ)' },
+          unit: 'cm',
+          min: 5,
+          max: 100,
+          step: 1,
+          defaultValue: 40,
+        },
+        {
+          id: 'objectHeight',
+          label: { en: 'Object Height (hₒ)', ar: 'طول الجسم (hₒ)', ku: 'بەرزی تەن (hₒ)', kmr: 'Bilindiya Tiştî (hₒ)', bad: 'بلندیا تەنێ (hₒ)' },
+          unit: 'cm',
+          min: 2,
+          max: 30,
+          step: 1,
+          defaultValue: 10,
+        },
+      ];
+    case 3:
+      return [
+        {
+          id: 'incidentAngle',
+          label: { en: 'Incident Angle (θᵢ)', ar: 'زاوية السقوط (θᵢ)', ku: 'گۆشەی کەوتن (θᵢ)', kmr: 'Goşeya Ketinê (θᵢ)', bad: 'گۆشەیا کەفتنێ (θᵢ)' },
+          unit: '°',
+          min: 10,
+          max: 80,
+          step: 1,
+          defaultValue: 45,
+        },
+        {
+          id: 'periscopeHeight',
+          label: { en: 'Periscope Height (H)', ar: 'ارتفاع البريسكوب (H)', ku: 'بەرزی پێریسکۆپ (H)', kmr: 'Bilindiya Pêrîskopê (H)', bad: 'بلندیا پێریسکۆپێ (H)' },
+          unit: 'cm',
+          min: 20,
+          max: 120,
+          step: 5,
+          defaultValue: 60,
+        },
+      ];
+    case 4:
+      return [
+        {
+          id: 'charge1',
+          label: { en: 'Charge 1 (q₁)', ar: 'الشحنة الأولى (q₁)', ku: 'بارگەی یەکەم (q₁)', kmr: 'Bargê Yekem (q₁)', bad: 'بارگەیێ ئێکێ (q₁)' },
+          unit: 'μC',
+          min: -50,
+          max: 50,
+          step: 1,
+          defaultValue: 10,
+        },
+        {
+          id: 'charge2',
+          label: { en: 'Charge 2 (q₂)', ar: 'الشحنة الثانية (q₂)', ku: 'بارگەی دووەم (q₂)', kmr: 'Bargê Duyem (q₂)', bad: 'بارگەیێ دووێ (q₂)' },
+          unit: 'μC',
+          min: -50,
+          max: 50,
+          step: 1,
+          defaultValue: 20,
+        },
+        {
+          id: 'distance',
+          label: { en: 'Distance (r)', ar: 'المسافة (r)', ku: 'دووری (r)', kmr: 'Dûrî (r)', bad: 'دویراتی (r)' },
+          unit: 'cm',
+          min: 2,
+          max: 50,
+          step: 1,
+          defaultValue: 10,
+        },
+      ];
+    case 5:
+      return [
+        {
+          id: 'mass',
+          label: { en: 'Sled Mass (m)', ar: 'كتلة الزلاجة (m)', ku: 'بارستەی خلیسکێنە (m)', kmr: 'Giraniya Xşokê (m)', bad: 'بارستەیا خلیسکانکێ (m)' },
+          unit: 'kg',
+          min: 1,
+          max: 50,
+          step: 1,
+          defaultValue: 10,
+        },
+        {
+          id: 'frictionCoeff',
+          label: { en: 'Friction Coeff (μₖ)', ar: 'معامل الاحتكاك (μₖ)', ku: 'هاوکۆڵەی لێکخشاندن (μₖ)', kmr: 'Qatjimara Îshqilînê (μₖ)', bad: 'رێژەیا لێکخشاندنێ (μₖ)' },
+          unit: '',
+          min: 0.05,
+          max: 0.95,
+          step: 0.05,
+          defaultValue: 0.25,
+        },
+        {
+          id: 'force',
+          label: { en: 'Applied Pull Force (F)', ar: 'قوة السحب (F)', ku: 'هێزی ڕاکێشان (F)', kmr: 'Hêza Rakêşanê (F)', bad: 'هێزا راکێشانێ (F)' },
+          unit: 'N',
+          min: 0,
+          max: 200,
+          step: 5,
+          defaultValue: 50,
+        },
+      ];
+    case 25:
+      return [
+        {
+          id: 'springConstant',
+          label: { en: 'Spring Constant (k)', ar: 'ثابت النابض (k)', ku: 'نەگۆڕی سپرینگ (k)', kmr: 'Neqora Spiringê (k)', bad: 'نەگۆڕێ سپرینگێ (k)' },
+          unit: 'N/m',
+          min: 10,
+          max: 200,
+          step: 5,
+          defaultValue: 50,
+        },
+        {
+          id: 'mass',
+          label: { en: 'Hanging Mass (m)', ar: 'الكتلة المعلقة (m)', ku: 'بارستەی هەڵواسراو (m)', kmr: 'Giraniya Daleqandî (m)', bad: 'بارستەیا شۆڕکری (m)' },
+          unit: 'kg',
+          min: 0.2,
+          max: 10.0,
+          step: 0.1,
+          defaultValue: 2.0,
+        },
+      ];
+    case 30:
+      return [
+        {
+          id: 'wavelength',
+          label: { en: 'Laser Wavelength (λ)', ar: 'طول موجة الليزر (λ)', ku: 'درێژی شەپۆلی لەیزەر (λ)', kmr: 'Dirêjiya Pêla Laserê (λ)', bad: 'درێژیا پێلا لەیزەری (λ)' },
+          unit: 'nm',
+          min: 380,
+          max: 750,
+          step: 5,
+          defaultValue: 532,
+        },
+        {
+          id: 'slitDistance',
+          label: { en: 'Slit Separation (d)', ar: 'المسافة بين الشقين (d)', ku: 'دووری نێوان درزەکان (d)', kmr: 'Dûriya Qelşan (d)', bad: 'دویریا درزان (d)' },
+          unit: 'μm',
+          min: 10,
+          max: 150,
+          step: 5,
+          defaultValue: 50,
+        },
+      ];
+    case 33:
+      return [
+        {
+          id: 'voltage',
+          label: { en: 'Supply Voltage (V)', ar: 'جهد المصدر (V)', ku: 'ڤۆڵتیەی سەرچاوە (V)', kmr: 'Voltaja Çavkaniyê (V)', bad: 'ڤۆلتییا ژێدەری (V)' },
+          unit: 'V',
+          min: 1,
+          max: 48,
+          step: 1,
+          defaultValue: 12,
+        },
+        {
+          id: 'resistance',
+          label: { en: 'Circuit Resistance (R)', ar: 'مقاومة الدارة (R)', ku: 'بەرگری بازنە (R)', kmr: 'Berxwedana Çerxê (R)', bad: 'بەرگریا بازنەی (R)' },
+          unit: 'Ω',
+          min: 1,
+          max: 500,
+          step: 5,
+          defaultValue: 100,
+        },
+      ];
+    case 34:
+      return [
+        {
+          id: 'fluidDensity',
+          label: { en: 'Fluid Density (ρ)', ar: 'كثافة السائل (ρ)', ku: 'چڕی شلە (ρ)', kmr: 'Tirşiya Avê (ρ)', bad: 'چڕیا شلەمەنیێ (ρ)' },
+          unit: 'kg/m³',
+          min: 500,
+          max: 2000,
+          step: 50,
+          defaultValue: 1000,
+        },
+        {
+          id: 'objectVolume',
+          label: { en: 'Object Volume (V)', ar: 'حجم الجسم (V)', ku: 'قەبارەی تەن (V)', kmr: 'Qebareya Tiştî (V)', bad: 'قەبارێ تەنێ (V)' },
+          unit: 'L',
+          min: 0.5,
+          max: 10.0,
+          step: 0.5,
+          defaultValue: 3.0,
+        },
+      ];
+    case 36:
+      return [
+        {
+          id: 'n1',
+          label: { en: 'Index Medium 1 (n₁)', ar: 'معامل الوسط الأول (n₁)', ku: 'هاوکۆڵەی ناوەندی 1 (n₁)', kmr: 'Şikestina Navenda 1 (n₁)', bad: 'هاوکۆلکێ ناڤەندێ 1 (n₁)' },
+          unit: '',
+          min: 1.0,
+          max: 2.5,
+          step: 0.05,
+          defaultValue: 1.0,
+        },
+        {
+          id: 'n2',
+          label: { en: 'Index Medium 2 (n₂)', ar: 'معامل الوسط الثاني (n₂)', ku: 'هاوکۆڵەی ناوەندی 2 (n₂)', kmr: 'Şikestina Navenda 2 (n₂)', bad: 'هاوکۆلکێ ناڤەندێ 2 (n₂)' },
+          unit: '',
+          min: 1.0,
+          max: 2.5,
+          step: 0.05,
+          defaultValue: 1.5,
+        },
+        {
+          id: 'incidentAngle',
+          label: { en: 'Incident Angle (θ₁)', ar: 'زاوية السقوط (θ₁)', ku: 'گۆشەی کەوتن (θ₁)', kmr: 'Goşeya Ketinê (θ₁)', bad: 'گۆشەیا کەفتنێ (θ₁)' },
+          unit: '°',
+          min: 0,
+          max: 89,
+          step: 1,
+          defaultValue: 30,
+        },
+      ];
+    case 68:
+      return [
+        {
+          id: 'wavelength',
+          label: { en: 'Wavelength (λ)', ar: 'طول الموجة (λ)', ku: 'درێژی شەپۆل (λ)', kmr: 'Dirêjiya Pêlê (λ)', bad: 'درێژیا پێلێ (λ)' },
+          unit: 'nm',
+          min: 150,
+          max: 700,
+          step: 5,
+          defaultValue: 275,
+        },
+        {
+          id: 'workFunction',
+          label: { en: 'Work Function (Φ)', ar: 'دالة الشغل (Φ)', ku: 'نەخشی کار (Φ)', kmr: 'Fonksiyona Kar (Φ)', bad: 'نەخشێ کاری (Φ)' },
+          unit: 'eV',
+          min: 1.8,
+          max: 6.0,
+          step: 0.1,
+          defaultValue: 2.3,
+        },
+      ];
+    case 69:
+      return [
+        {
+          id: 'initialNuclei',
+          label: { en: 'Initial Nuclei (N₀)', ar: 'الأنوية الابتدائية (N₀)', ku: 'ناوکە سەرەتاییەکان (N₀)', kmr: 'Navokên Destpêkê (N₀)', bad: 'ناڤۆکێن دەستپێکی (N₀)' },
+          unit: 'nuclei',
+          min: 50,
+          max: 500,
+          step: 25,
+          defaultValue: 200,
+        },
+        {
+          id: 'halfLife',
+          label: { en: 'Half-Life (T½)', ar: 'فترة نصف العمر (T½)', ku: 'نیوەژین (T½)', kmr: 'Nîv-Jiyan (T½)', bad: 'نیڤەژین (T½)' },
+          unit: 's',
+          min: 1,
+          max: 30,
+          step: 1,
+          defaultValue: 5,
+        },
+      ];
+    case 23:
+      return [
+        {
+          id: 'length',
+          label: { en: 'Pendulum Length (L)', ar: 'طول البندول (L)', ku: 'درێژی پەندۆڵ (L)', kmr: 'Dirêjiya Pêndulê (L)', bad: 'درێژیا پەندۆلی (L)' },
+          unit: 'm',
+          min: 0.2,
+          max: 3.0,
+          step: 0.1,
+          defaultValue: 1.0,
+        },
+        {
+          id: 'gravity',
+          label: { en: 'Gravity Acceleration (g)', ar: 'تسارع الجاذبية (g)', ku: 'تاودانی کێشکردن (g)', kmr: 'Lezkirina Erdê (g)', bad: 'لەزاتییا کێشکرنێ (g)' },
+          unit: 'm/s²',
+          min: 1.6,
+          max: 25.0,
+          step: 0.1,
+          defaultValue: 9.8,
+        },
+        {
+          id: 'initialAngle',
+          label: { en: 'Initial Angle (θ₀)', ar: 'الزاوية الابتدائية (θ₀)', ku: 'گۆشەی سەرەتایی (θ₀)', kmr: 'Goşeya Destpêkê (θ₀)', bad: 'گۆشەیا دەستپێکی (θ₀)' },
+          unit: '°',
+          min: 5,
+          max: 60,
+          step: 1,
+          defaultValue: 20,
+        },
+      ];
+    case 24:
+      return [
+        {
+          id: 'initialVelocity',
+          label: { en: 'Launch Velocity (v₀)', ar: 'سرعة الإطلاق (v₀)', ku: 'خێرایی هاویشتن (v₀)', kmr: 'Leza Avêtinê (v₀)', bad: 'لەزاتییا هاڤێتنێ (v₀)' },
+          unit: 'm/s',
+          min: 5,
+          max: 60,
+          step: 1,
+          defaultValue: 25,
+        },
+        {
+          id: 'launchAngle',
+          label: { en: 'Launch Angle (θ)', ar: 'زاوية الإطلاق (θ)', ku: 'گۆشەی هاویشتن (θ)', kmr: 'Goşeya Avêtinê (θ)', bad: 'گۆشەیا هاڤێتنێ (θ)' },
+          unit: '°',
+          min: 10,
+          max: 85,
+          step: 1,
+          defaultValue: 45,
+        },
+        {
+          id: 'gravity',
+          label: { en: 'Gravity (g)', ar: 'الجاذبية (g)', ku: 'کێشکردن (g)', kmr: 'Gravîtasyon (g)', bad: 'کێشکرن (g)' },
+          unit: 'm/s²',
+          min: 1.6,
+          max: 25.0,
+          step: 0.1,
+          defaultValue: 9.8,
+        },
+      ];
+    case 28:
+    case 29:
+      return [
+        {
+          id: 'pipeLength',
+          label: { en: 'Pipe Length (L)', ar: 'طول الأنبوب (L)', ku: 'درێژی بۆری (L)', kmr: 'Dirêjiya Lûleyê (L)', bad: 'درێژیا بۆریێ (L)' },
+          unit: 'm',
+          min: 0.2,
+          max: 2.0,
+          step: 0.05,
+          defaultValue: 0.85,
+        },
+        {
+          id: 'harmonic',
+          label: { en: 'Harmonic Mode (n)', ar: 'النمط التوافقي (n)', ku: 'شێوازی هارمۆنیک (n)', kmr: 'Moda Harmonîk (n)', bad: 'شێوازێ هارمۆنیک (n)' },
+          unit: '',
+          min: 1,
+          max: 6,
+          step: 1,
+          defaultValue: 1,
+        },
+        {
+          id: 'soundSpeed',
+          label: { en: 'Speed of Sound (v)', ar: 'سرعة الصوت (v)', ku: 'خێرایی دەنگ (v)', kmr: 'Leza Deng (v)', bad: 'لەزاتییا دەنگی (v)' },
+          unit: 'm/s',
+          min: 300,
+          max: 380,
+          step: 1,
+          defaultValue: 343,
+        },
+      ];
+    case 49:
+    case 61:
+      return [
+        {
+          id: 'tension',
+          label: { en: 'String Tension (T)', ar: 'شد الخيط (T)', ku: 'ڕاکێشانی پەت (T)', kmr: 'Girjiya Ben (T)', bad: 'راکێشانا پەتکی (T)' },
+          unit: 'N',
+          min: 10,
+          max: 300,
+          step: 5,
+          defaultValue: 120,
+        },
+        {
+          id: 'linearDensity',
+          label: { en: 'Linear Density (μ)', ar: 'الكثافة الخطية (μ)', ku: 'چڕی هێڵی (μ)', kmr: 'Tirşiya Hêlî (μ)', bad: 'چڕیا هێلی (μ)' },
+          unit: 'g/m',
+          min: 1,
+          max: 20,
+          step: 0.5,
+          defaultValue: 5,
+        },
+        {
+          id: 'harmonic',
+          label: { en: 'Harmonic (n)', ar: 'الرتبة التوافقية (n)', ku: 'پلەی هارمۆنیک (n)', kmr: 'Harmonîk (n)', bad: 'پلا هارمۆنیک (n)' },
+          unit: '',
+          min: 1,
+          max: 5,
+          step: 1,
+          defaultValue: 2,
+        },
+      ];
+    case 66:
+      return [
+        {
+          id: 'sourceSpeed',
+          label: { en: 'Source Speed (vₛ)', ar: 'سرعة المصدر (vₛ)', ku: 'خێرایی سەرچاوە (vₛ)', kmr: 'Leza Çavkaniyê (vₛ)', bad: 'لەزاتییا ژێدەری (vₛ)' },
+          unit: 'm/s',
+          min: 0,
+          max: 250,
+          step: 5,
+          defaultValue: 60,
+        },
+        {
+          id: 'sourceFrequency',
+          label: { en: 'Source Frequency (f₀)', ar: 'تردد المصدر (f₀)', ku: 'فریکوێنسی سەرچاوە (f₀)', kmr: 'Frîkansa Çavkaniyê (f₀)', bad: 'فریکوێنسیا ژێدەری (f₀)' },
+          unit: 'Hz',
+          min: 100,
+          max: 1000,
+          step: 10,
+          defaultValue: 440,
+        },
+        {
+          id: 'soundSpeed',
+          label: { en: 'Speed of Sound (v)', ar: 'سرعة الصوت (v)', ku: 'خێرایی دەنگ (v)', kmr: 'Leza Deng (v)', bad: 'لەزاتییا دەنگی (v)' },
+          unit: 'm/s',
+          min: 300,
+          max: 380,
+          step: 1,
+          defaultValue: 343,
+        },
+      ];
+    default:
+      if (category === 'waves') {
+        return [
+          {
+            id: 'frequency',
+            label: { en: 'Frequency (f)', ar: 'التردد (f)', ku: 'فریکوێنسی (f)', kmr: 'Frîkans (f)', bad: 'فریکوێنس (f)' },
+            unit: 'Hz',
+            min: 50,
+            max: 1000,
+            step: 10,
+            defaultValue: 440,
+          },
+          {
+            id: 'soundSpeed',
+            label: { en: 'Wave Speed (v)', ar: 'سرعة الموجة (v)', ku: 'خێرایی شەپۆل (v)', kmr: 'Leza Pêlê (v)', bad: 'لەزاتییا پێلێ (v)' },
+            unit: 'm/s',
+            min: 100,
+            max: 500,
+            step: 5,
+            defaultValue: 343,
+          },
+        ];
+      }
+      if (category === 'optics') {
+        return [
+          {
+            id: 'focalLength',
+            label: { en: 'Focal Length (f)', ar: 'البعد البؤري (f)', ku: 'دووری بؤری (f)', kmr: 'Dûriya Balgehê (f)', bad: 'دویریا بالگەهی (f)' },
+            unit: 'cm',
+            min: 5,
+            max: 50,
+            step: 1,
+            defaultValue: 20,
+          },
+          {
+            id: 'objectDistance',
+            label: { en: 'Object Distance (dₒ)', ar: 'بعد الجسم (dₒ)', ku: 'دووری تەن (dₒ)', kmr: 'Dûriya Tiştî (dₒ)', bad: 'دویریا تەنێ (dₒ)' },
+            unit: 'cm',
+            min: 5,
+            max: 100,
+            step: 1,
+            defaultValue: 40,
+          },
+        ];
+      }
+      if (category === 'thermodynamics') {
+        return [
+          {
+            id: 'temperature',
+            label: { en: 'Temperature (T)', ar: 'درجة الحرارة (T)', ku: 'پلەی گەرمی (T)', kmr: 'Germahî (T)', bad: 'پلەیا گەرمییێ (T)' },
+            unit: 'K',
+            min: 100,
+            max: 800,
+            step: 10,
+            defaultValue: 300,
+          },
+          {
+            id: 'volume',
+            label: { en: 'Volume (V)', ar: 'الحجم (V)', ku: 'قەبارە (V)', kmr: 'Qebare (V)', bad: 'قەبارە (V)' },
+            unit: 'L',
+            min: 1,
+            max: 50,
+            step: 1,
+            defaultValue: 10,
+          },
+        ];
+      }
+      if (category === 'electricity') {
+        return [
+          {
+            id: 'voltage',
+            label: { en: 'Supply Voltage (V)', ar: 'جهد المصدر (V)', ku: 'ڤۆڵتیەی سەرچاوە (V)', kmr: 'Voltaja Çavkaniyê (V)', bad: 'ڤۆلتییا ژێدەری (V)' },
+            unit: 'V',
+            min: 1,
+            max: 50,
+            step: 1,
+            defaultValue: 12,
+          },
+          {
+            id: 'resistance',
+            label: { en: 'Resistance (R)', ar: 'المقاومة (R)', ku: 'بەرگری (R)', kmr: 'Berxwedan (R)', bad: 'بەرگری (R)' },
+            unit: 'Ω',
+            min: 1,
+            max: 200,
+            step: 1,
+            defaultValue: 50,
+          },
+        ];
+      }
+      if (category === 'modern_physics' || category === 'quantum' || category === 'nuclear') {
+        return [
+          {
+            id: 'energy',
+            label: { en: 'Photon Energy (E)', ar: 'طاقة الفوتون (E)', ku: 'وزەی فۆتۆن (E)', kmr: 'Enerjiya Foton (E)', bad: 'وزا فۆتۆنی (E)' },
+            unit: 'eV',
+            min: 1.0,
+            max: 15.0,
+            step: 0.1,
+            defaultValue: 3.5,
+          },
+          {
+            id: 'wavelength',
+            label: { en: 'Wavelength (λ)', ar: 'طول الموجة (λ)', ku: 'درێژی شەپۆل (λ)', kmr: 'Dirêjiya Pêlê (λ)', bad: 'درێژیا پێلێ (λ)' },
+            unit: 'nm',
+            min: 200,
+            max: 800,
+            step: 10,
+            defaultValue: 450,
+          },
+        ];
+      }
+      // Mechanics default
+      return [
+        {
+          id: 'mass',
+          label: { en: 'Mass (m)', ar: 'الكتلة (m)', ku: 'بارستە (m)', kmr: 'Giranî (m)', bad: 'بارستە (m)' },
+          unit: 'kg',
+          min: 0.5,
+          max: 50,
+          step: 0.5,
+          defaultValue: 5,
+        },
+        {
+          id: 'velocity',
+          label: { en: 'Velocity (v)', ar: 'السرعة (v)', ku: 'خێرایی (v)', kmr: 'Lez (v)', bad: 'لەزاتی (v)' },
+          unit: 'm/s',
+          min: 1,
+          max: 60,
+          step: 1,
+          defaultValue: 15,
+        },
+      ];
+  }
+}
+
+function getOutputMetricsForExperiment(code: number, category: string): PhysicsOutput[] {
+  switch (code) {
+    case 1:
+      return [
+        { id: 'deltaU', label: { en: 'Internal Energy (ΔU)', ar: 'الطاقة الداخلية (ΔU)', ku: 'وزەی ناوەکی (ΔU)', kmr: 'Enerjiya Hundurîn', bad: 'وزا ناڤخۆیی (ΔU)' }, unit: 'J', symbol: 'ΔU' },
+        { id: 'finalTemp', label: { en: 'Final Temperature (T)', ar: 'درجة الحرارة (T)', ku: 'پلەی گەرمی (T)', kmr: 'Germahî (T)', bad: 'پلەیا گەرمییێ (T)' }, unit: 'K', symbol: 'T' },
+      ];
+    case 2:
+      return [
+        { id: 'lensPower', label: { en: 'Lens Power (P)', ar: 'قوة العدسة (P)', ku: 'هێزی هاوێنە (P)', kmr: 'Hêza Lênsê (P)', bad: 'شیانا هاوێنێ (P)' }, unit: 'dpt', symbol: 'P' },
+        { id: 'imageDistance', label: { en: 'Image Distance (dᵢ)', ar: 'بعد الصورة (dᵢ)', ku: 'دووری وێنە (dᵢ)', kmr: 'Dûriya Wêneyê (dᵢ)', bad: 'دویریا وێنەی (dᵢ)' }, unit: 'cm', symbol: 'd_i' },
+        { id: 'magnification', label: { en: 'Magnification (M)', ar: 'التكبير (M)', ku: 'گەورەکردن (M)', kmr: 'Mezinbûn (M)', bad: 'مەزنکرن (M)' }, unit: '×', symbol: 'M' },
+      ];
+    case 3:
+      return [
+        { id: 'reflectionAngle', label: { en: 'Reflection Angle (θᵣ)', ar: 'زاوية الانعكاس (θᵣ)', ku: 'گۆشەی پێچەوانە (θᵣ)', kmr: 'Goşeya Vegerînê', bad: 'گۆشەیا زڤرینێ (θᵣ)' }, unit: '°', symbol: 'θ_r' },
+        { id: 'pathLength', label: { en: 'Light Path Length (L)', ar: 'طول مسار الضوء (L)', ku: 'درێژی ڕێڕەو (L)', kmr: 'Dirêjiya Rêyê', bad: 'درێژیا رێڕەوی (L)' }, unit: 'cm', symbol: 'L' },
+      ];
+    case 4:
+      return [
+        { id: 'coulombForce', label: { en: 'Coulomb Force (F)', ar: 'قوة كولوم (F)', ku: 'هێزی کۆلۆم (F)', kmr: 'Hêza Coulomb', bad: 'هێزا کۆلۆمی (F)' }, unit: 'N', symbol: 'F' },
+      ];
+    case 5:
+      return [
+        { id: 'frictionForce', label: { en: 'Friction Force (fₖ)', ar: 'قوة الاحتكاك (fₖ)', ku: 'هێزی لێکخشاندن (fₖ)', kmr: 'Hêza Îshqilînê', bad: 'هێزا لێکخشاندنێ (fₖ)' }, unit: 'N', symbol: 'f_k' },
+        { id: 'acceleration', label: { en: 'Acceleration (a)', ar: 'التسارع (a)', ku: 'تاودان (a)', kmr: 'Lezdan (a)', bad: 'لەزاتی (a)' }, unit: 'm/s²', symbol: 'a' },
+      ];
+    case 23:
+      return [
+        { id: 'period', label: { en: 'Period (T)', ar: 'الزمن الدوري (T)', ku: 'خولی کات (T)', kmr: 'Dema Xulê (T)', bad: 'دەما خولێ (T)' }, unit: 's', symbol: 'T' },
+        { id: 'frequency', label: { en: 'Frequency (f)', ar: 'التردد (f)', ku: 'فریکوێنسی (f)', kmr: 'Frîkans (f)', bad: 'فریکوێنس (f)' }, unit: 'Hz', symbol: 'f' },
+      ];
+    case 24:
+      return [
+        { id: 'range', label: { en: 'Max Range (R)', ar: 'المدى الأقصى (R)', ku: 'مەودای کۆتایی (R)', kmr: 'Mewdaya Dawî (R)', bad: 'مەودایا دوماهییێ (R)' }, unit: 'm', symbol: 'R' },
+        { id: 'maxHeight', label: { en: 'Max Height (H)', ar: 'أقصى ارتفاع (H)', ku: 'بەرزترین ئاست (H)', kmr: 'Bilindahiya Bilind (H)', bad: 'بلندترین ئاست (H)' }, unit: 'm', symbol: 'H' },
+        { id: 'flightTime', label: { en: 'Time of Flight (t)', ar: 'زمن التحليق (t)', ku: 'کاتی فڕین (t)', kmr: 'Dema Firînê (t)', bad: 'دەما فڕینێ (t)' }, unit: 's', symbol: 't' },
+      ];
+    case 25:
+      return [
+        { id: 'period', label: { en: 'Oscillation Period (T)', ar: 'زمن التذبذب (T)', ku: 'خولی لەرینەوە (T)', kmr: 'Dema Hejandinê (T)', bad: 'دەما لەرینێ (T)' }, unit: 's', symbol: 'T' },
+        { id: 'frequency', label: { en: 'Frequency (f)', ar: 'التردد (f)', ku: 'فریکوێنسی (f)', kmr: 'Frîkans (f)', bad: 'فریکوێنس (f)' }, unit: 'Hz', symbol: 'f' },
+      ];
+    case 28:
+    case 29:
+      return [
+        { id: 'resonantFrequency', label: { en: 'Resonant Freq (f_res)', ar: 'تردد الرنين (f_res)', ku: 'فریکوێنسی دەنگدانەوە', kmr: 'Frîkansa Rezonansê', bad: 'فریکوێنسیا دەنگڤەدانێ' }, unit: 'Hz', symbol: 'f_res' },
+        { id: 'wavelength', label: { en: 'Wavelength (λ)', ar: 'طول الموجة (λ)', ku: 'درێژی شەپۆل (λ)', kmr: 'Dirêjiya Pêlê (λ)', bad: 'درێژیا پێلێ (λ)' }, unit: 'm', symbol: 'λ' },
+      ];
+    case 30:
+      return [
+        { id: 'fringeSpacing', label: { en: 'Fringe Spacing (Δy)', ar: 'المسافة بين الأهداب (Δy)', ku: 'مەودای هێڵەکان (Δy)', kmr: 'Mewdaya Xetan', bad: 'مەودایا هێلان (Δy)' }, unit: 'mm', symbol: 'Δy' },
+      ];
+    case 33:
+      return [
+        { id: 'current', label: { en: 'Current (I)', ar: 'التيار (I)', ku: 'تەزوو (I)', kmr: 'Herik (I)', bad: 'تەزوو (I)' }, unit: 'A', symbol: 'I' },
+        { id: 'power', label: { en: 'Power Dissipation (P)', ar: 'القدرة (P)', ku: 'توانا (P)', kmr: 'Hêz (P)', bad: 'شیان (P)' }, unit: 'W', symbol: 'P' },
+      ];
+    case 34:
+      return [
+        { id: 'buoyantForce', label: { en: 'Buoyant Force (F_B)', ar: 'قوة الطفو (F_B)', ku: 'هێزی بەرزکەرەوە', kmr: 'Hêza Rakirinê', bad: 'هێزا سەرئێخستنێ' }, unit: 'N', symbol: 'F_B' },
+      ];
+    case 36:
+      return [
+        { id: 'refractedAngle', label: { en: 'Refracted Angle (θ₂)', ar: 'زاوية الانكسار (θ₂)', ku: 'گۆشەی تێکشکاندن (θ₂)', kmr: 'Goşeya Şikestinê', bad: 'گۆشەیا شکانەڤێ (θ₂)' }, unit: '°', symbol: 'θ₂' },
+        { id: 'criticalAngle', label: { en: 'Critical Angle (θ_c)', ar: 'الزاوية الحرجة (θ_c)', ku: 'گۆشەی ئاستەنگ (θ_c)', kmr: 'Goşeya Krîtîk', bad: 'گۆشەیا رەخنەگر (θ_c)' }, unit: '°', symbol: 'θ_c' },
+      ];
+    case 49:
+    case 61:
+      return [
+        { id: 'waveSpeed', label: { en: 'Phase Wave Speed (v)', ar: 'سرعة الطور للموجة (v)', ku: 'خێرایی شەپۆل (v)', kmr: 'Leza Pêlê (v)', bad: 'لەزاتییا پێلێ (v)' }, unit: 'm/s', symbol: 'v' },
+        { id: 'frequency', label: { en: 'Resonant Frequency (f)', ar: 'التردد الرنيني (f)', ku: 'فریکوێنسی دەنگدانەوە (f)', kmr: 'Frîkansa Rezonansê (f)', bad: 'فریکوێنسیا دەنگڤەدانێ (f)' }, unit: 'Hz', symbol: 'f' },
+      ];
+    case 66:
+      return [
+        { id: 'observedFrequencyAhead', label: { en: 'Observed Freq Ahead (f′)', ar: 'التردد المشاهد في الأمام (f′)', ku: 'فریکوێنسی بینراو لە پێشەوە', kmr: 'Frîkansa Pêşî', bad: 'فریکوێنسیا پێشیا ژێدەری' }, unit: 'Hz', symbol: 'f′_ahead' },
+        { id: 'observedFrequencyBehind', label: { en: 'Observed Freq Behind (f′)', ar: 'التردد المشاهد في الخلف (f′)', ku: 'فریکوێنسی بینراو لە دواوە', kmr: 'Frîkansa Paşî', bad: 'فریکوێنسیا پاشیا ژێدەری' }, unit: 'Hz', symbol: 'f′_behind' },
+        { id: 'frequencyShift', label: { en: 'Doppler Shift (Δf)', ar: 'انزياح دوبلر (Δf)', ku: 'گۆڕانی دۆپلەر (Δf)', kmr: 'Guherîna Doppler', bad: 'گوهۆڕینا دۆپلەری (Δf)' }, unit: 'Hz', symbol: 'Δf' },
+        { id: 'machNumber', label: { en: 'Mach Number (M)', ar: 'رقم ماخ (M)', ku: 'ژمارەی ماخ (M)', kmr: 'Hejmara Mach (M)', bad: 'ژمارەیا ماخی (M)' }, unit: '', symbol: 'M' },
+      ];
+    case 68:
+      return [
+        { id: 'kineticEnergy', label: { en: 'Kinetic Energy (E_k)', ar: 'الطاقة الحركية (E_k)', ku: 'وزەی جووڵە (E_k)', kmr: 'Enerjiya Tevgerê', bad: 'وزا لڤینێ (E_k)' }, unit: 'eV', symbol: 'E_k' },
+        { id: 'cutoffFreq', label: { en: 'Cutoff Frequency (f₀)', ar: 'تردد العتبة (f₀)', ku: 'فریکوێنسی بڕین (f₀)', kmr: 'Frîkansa Qutkirinê', bad: 'فریکوێنسیا بڕینێ (f₀)' }, unit: '×10¹⁴ Hz', symbol: 'f₀' },
+      ];
+    case 69:
+      return [
+        { id: 'remainingNuclei', label: { en: 'Remaining Nuclei (N)', ar: 'الأنوية المتبقية (N)', ku: 'ناوکە ماوەکان (N)', kmr: 'Navokên Mayî (N)', bad: 'ناڤۆکێن مایین (N)' }, unit: 'nuclei', symbol: 'N' },
+        { id: 'activity', label: { en: 'Activity (A)', ar: 'النشاط الإشعاعي (A)', ku: 'چالاکی تیشکدان (A)', kmr: 'Çalakiya Radyoaktîf', bad: 'چالاکییا تیشکدانێ (A)' }, unit: 'Bq', symbol: 'A' },
+      ];
+    default:
+      if (category === 'waves') {
+        return [
+          { id: 'frequency', label: { en: 'Frequency (f)', ar: 'التردد (f)', ku: 'فریکوێنسی (f)', kmr: 'Frîkans (f)', bad: 'فریکوێنس (f)' }, unit: 'Hz', symbol: 'f' },
+          { id: 'wavelength', label: { en: 'Wavelength (λ)', ar: 'طول الموجة (λ)', ku: 'درێژی شەپۆل (λ)', kmr: 'Dirêjiya Pêlê (λ)', bad: 'درێژیا پێلێ (λ)' }, unit: 'm', symbol: 'λ' },
+        ];
+      }
+      if (category === 'optics') {
+        return [
+          { id: 'focalLength', label: { en: 'Focal Distance (f)', ar: 'البعد البؤري (f)', ku: 'دووری بؤری (f)', kmr: 'Dûriya Balgehê', bad: 'دویریا بالگەهی' }, unit: 'cm', symbol: 'f' },
+          { id: 'magnification', label: { en: 'Magnification (M)', ar: 'التكبير (M)', ku: 'گەورەکردن (M)', kmr: 'Mezinbûn (M)', bad: 'مەزنکرن (M)' }, unit: '×', symbol: 'M' },
+        ];
+      }
+      if (category === 'thermodynamics') {
+        return [
+          { id: 'pressure', label: { en: 'Pressure (P)', ar: 'الضغط (P)', ku: 'پەستان (P)', kmr: 'Pestan (P)', bad: 'پەستان (P)' }, unit: 'kPa', symbol: 'P' },
+          { id: 'temperature', label: { en: 'Temperature (T)', ar: 'درجة الحرارة (T)', ku: 'پلەی گەرمی (T)', kmr: 'Germahî (T)', bad: 'پلەیا گەرمییێ (T)' }, unit: 'K', symbol: 'T' },
+        ];
+      }
+      if (category === 'electricity') {
+        return [
+          { id: 'current', label: { en: 'Current (I)', ar: 'التيار (I)', ku: 'تەزوو (I)', kmr: 'Herik (I)', bad: 'تەزوو (I)' }, unit: 'A', symbol: 'I' },
+          { id: 'power', label: { en: 'Power (P)', ar: 'القدرة (P)', ku: 'توانا (P)', kmr: 'Hêz (P)', bad: 'شیان (P)' }, unit: 'W', symbol: 'P' },
+        ];
+      }
+      if (category === 'modern_physics' || category === 'quantum' || category === 'nuclear') {
+        return [
+          { id: 'energy', label: { en: 'Energy (E)', ar: 'الطاقة (E)', ku: 'وزە (E)', kmr: 'Enerjî (E)', bad: 'وزە (E)' }, unit: 'eV', symbol: 'E' },
+          { id: 'frequency', label: { en: 'Frequency (f)', ar: 'التردد (f)', ku: 'فریکوێنسی (f)', kmr: 'Frîkans (f)', bad: 'فریکوێنس (f)' }, unit: 'Hz', symbol: 'f' },
+        ];
+      }
+      return [
+        { id: 'velocity', label: { en: 'Velocity (v)', ar: 'السرعة (v)', ku: 'خێرایی (v)', kmr: 'Lez (v)', bad: 'لەزاتی (v)' }, unit: 'm/s', symbol: 'v' },
+        { id: 'kineticEnergy', label: { en: 'Kinetic Energy (E_k)', ar: 'الطاقة الحركية (E_k)', ku: 'وزەی جووڵە (E_k)', kmr: 'Enerjiya Tevgerê', bad: 'وزا لڤینێ (E_k)' }, unit: 'J', symbol: 'E_k' },
+      ];
+  }
 }
 
 /**

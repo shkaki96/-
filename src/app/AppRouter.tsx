@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { MainLayout } from '../layouts/MainLayout';
 import { HomePage } from '../pages/HomePage';
 import { ExperimentPage } from '../pages/ExperimentPage';
@@ -8,24 +8,29 @@ export const AppRouter = () => {
   const [selectedExperimentId, setSelectedExperimentId] = useState<string>('exp-001-work-heat-1st-law-thermodynamics');
   const [activeToolFromDrawer, setActiveToolFromDrawer] = useState<string | null>(null);
 
-  const handleNavigateToExperiment = (id: string) => {
+  const handleNavigateToExperiment = useCallback((id: string) => {
     setSelectedExperimentId(id);
     setActivePage('experiment');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const handleNavigatePage = (page: string) => {
+  const handleNavigatePage = useCallback((page: string) => {
     setActivePage(page as 'home' | 'experiment');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const handleOpenToolFromDrawer = (toolId: string) => {
+  const handleOpenToolFromDrawer = useCallback((toolId: string) => {
     setActiveToolFromDrawer(toolId);
-    if (activePage !== 'experiment') {
-      setActivePage('experiment');
-    }
+    setActivePage((prev) => {
+      if (prev !== 'experiment') return 'experiment';
+      return prev;
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
+
+  const handleClearDrawerTool = useCallback(() => {
+    setActiveToolFromDrawer(null);
+  }, []);
 
   return (
     <MainLayout
@@ -42,7 +47,7 @@ export const AppRouter = () => {
           onNavigate={handleNavigateToExperiment}
           onBack={() => handleNavigatePage('home')}
           openToolFromDrawer={activeToolFromDrawer}
-          onClearDrawerTool={() => setActiveToolFromDrawer(null)}
+          onClearDrawerTool={handleClearDrawerTool}
         />
       )}
     </MainLayout>

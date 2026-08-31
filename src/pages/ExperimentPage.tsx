@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { ExperimentRegistry } from '../data/experiments/registry';
 import { SimulationEngineFactory } from '../simulations/engineFactory';
 import { useTranslation } from '../i18n/useTranslation';
@@ -6,8 +6,8 @@ import { ExperimentNavigation } from '../components/experiment/ExperimentNavigat
 import { ExperimentHeader } from '../components/experiment/ExperimentHeader';
 import { SimulationViewport } from '../components/experiment/SimulationViewport';
 import { ControlPanel } from '../components/experiment/ControlPanel';
-import { ResultsPanel } from '../components/experiment/ResultsPanel';
 import { RealtimeGraph } from '../components/experiment/RealtimeGraph';
+import { ExperimentLogPanel } from '../components/experiment/ExperimentLogPanel';
 import { TheoryPanel } from '../components/experiment/TheoryPanel';
 import { QuizPanel } from '../components/experiment/QuizPanel';
 import { ExperimentToolDock } from '../components/experiment/ExperimentToolDock';
@@ -33,7 +33,7 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
   openToolFromDrawer = null,
   onClearDrawerTool,
 }) => {
-  const { getLocalizedText } = useTranslation();
+  const { getLocalizedText, language } = useTranslation();
 
   const experiment = useMemo(() => {
     return ExperimentRegistry.getById(experimentId) || ExperimentRegistry.getAll()[0];
@@ -53,22 +53,42 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
   const [params, setParams] = useState<Record<string, number>>(defaultParams);
   const [isRunning, setIsRunning] = useState(false); // Motion does not start automatically per Phase 10.1
   const [hasStartedOnce, setHasStartedOnce] = useState(false);
+  const [liveOutputs, setLiveOutputs] = useState<Record<string, number>>({});
   const [, setTick] = useState<number>(0);
   const [activeModal, setActiveModal] = useState<string | null>(openToolFromDrawer);
+
+  const handleOutputsUpdate = useCallback((newOutputs: Record<string, number>) => {
+    if (!newOutputs) return;
+    setLiveOutputs((prev) => {
+      const prevKeys = Object.keys(prev);
+      const newKeys = Object.keys(newOutputs);
+      if (prevKeys.length === newKeys.length) {
+        let isSame = true;
+        for (const k of newKeys) {
+          if (prev[k] !== newOutputs[k]) {
+            isSame = false;
+            break;
+          }
+        }
+        if (isSame) return prev;
+      }
+      return { ...prev, ...newOutputs };
+    });
+  }, []);
 
   // Re-sync params when experiment changes
   useEffect(() => {
     setParams(defaultParams);
     setIsRunning(false);
     setHasStartedOnce(false);
-  }, [experiment, defaultParams]);
+  }, [experiment.id]);
 
   // Instantiate proper simulation engine for current experiment
   const engine = useMemo(() => {
     const eng = SimulationEngineFactory.createEngine(experiment, defaultParams);
     eng.pause(); // Ensure initial state is ready and paused at t=0
     return eng;
-  }, [experiment, defaultParams]);
+  }, [experiment.id]);
 
   // Frame tick loop to continuously stream state into React for live telemetry & graphs
   useEffect(() => {
@@ -87,9 +107,9 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
   useEffect(() => {
     if (openToolFromDrawer) {
       setActiveModal(openToolFromDrawer);
-      if (onClearDrawerTool) onClearDrawerTool();
+      onClearDrawerTool?.();
     }
-  }, [openToolFromDrawer, onClearDrawerTool]);
+  }, [openToolFromDrawer]);
 
   const handleStart = () => {
     engine.start();
@@ -125,18 +145,11 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
   const state = engine.getState();
   const title = getLocalizedText(experiment.title);
 
-  // Format Inputs for Results Panel
-  const inputList = (experiment.parameters || []).map((p) => ({
-    label: getLocalizedText(p.label),
-    value: params[p.id] ?? p.defaultValue,
-    unit: p.unit,
-  }));
-
-  // Format Outputs for Results Panel with real physical simulation metrics
+  // Format Outputs with real physical simulation metrics for Graphing
   const outputList = useMemo(() => {
     const category = experiment.category;
     const id = experiment.id.toLowerCase();
-    const data = state.data;
+    const data = { ...state.data, ...liveOutputs };
     const elapsedTime = state.time;
 
     const list: Array<{
@@ -162,8 +175,183 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
       highlight: true,
     });
 
-    // 2. Pendulum / Harmonic motion
-    if (id.includes('pendulum') || id.includes('harmonic') || data.angularVelocity !== undefined) {
+    // 2. Optometry & Lens Power (Exp #2, #15, #16)
+    if (experiment.codeNumber === 2 || experiment.codeNumber === 15 || experiment.codeNumber === 16 || data.lensPower !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'قوة العدسة', en: 'Lens Power', ku: 'هێزی هاوێنە', kmr: 'Hêza Lênsê', bad: 'شیانا هاوێنێ' }),
+        symbol: 'P',
+        value: data.lensPower !== undefined ? `${Number(data.lensPower) > 0 ? '+' : ''}${data.lensPower}` : '+5.00',
+        unit: 'dpt',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'بعد الصورة', en: 'Image Distance', ku: 'دووری وێنە', kmr: 'Dûriya Wêneyê', bad: 'دویریا وێنەی' }),
+        symbol: 'dᵢ',
+        value: data.imageDistance !== undefined ? String(data.imageDistance) : '40.00',
+        unit: 'cm',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'معامل التكبير', en: 'Magnification', ku: 'گەورەکردن', kmr: 'Rêjeya Mezinbûnê', bad: 'مەزنکرن' }),
+        symbol: 'M',
+        value: data.magnification !== undefined ? String(data.magnification) : '-1.00',
+        unit: '×',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'طول الصورة', en: 'Image Height', ku: 'بەرزی وێنە', kmr: 'Bilindiya Wêneyê', bad: 'بلندیا وێنەی' }),
+        symbol: 'hᵢ',
+        value: data.imageHeight !== undefined ? String(data.imageHeight) : '-10.00',
+        unit: 'cm',
+        highlight: false,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'البعد البؤري', en: 'Focal Length', ku: 'دووری بؤری', kmr: 'Dûriya Balgehê', bad: 'دویریا بالگەهی' }),
+        symbol: 'f',
+        value: data.focalLength !== undefined ? String(data.focalLength) : String(params.focalLength ?? 20),
+        unit: 'cm',
+        highlight: false,
+      });
+    }
+    // 3. Periscope & Reflection (Exp #3, #14)
+    else if (experiment.codeNumber === 3 || experiment.codeNumber === 14 || data.reflectionAngle !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'زاوية السقوط', en: 'Incident Angle', ku: 'گۆشەی کەوتن', kmr: 'Goşeya Ketinê', bad: 'گۆشەیا کەفتنێ' }),
+        symbol: 'θᵢ',
+        value: data.incidentAngle !== undefined ? String(data.incidentAngle) : String(params.incidentAngle ?? 45),
+        unit: '°',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'زاوية الانعكاس', en: 'Reflection Angle', ku: 'گۆشەی پێچەوانە', kmr: 'Goşeya Vegerînê', bad: 'گۆشەیا زڤرینێ' }),
+        symbol: 'θᵣ',
+        value: data.reflectionAngle !== undefined ? String(data.reflectionAngle) : String(params.incidentAngle ?? 45),
+        unit: '°',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'طول مسار الضوء', en: 'Light Path Length', ku: 'درێژی ڕێڕەوی ڕووناکی', kmr: 'Dirêjiya Rêya Ronahiyê', bad: 'درێژیا رێڕەوێ رووناهییێ' }),
+        symbol: 'L',
+        value: data.pathLength !== undefined ? String(data.pathLength) : '120.0',
+        unit: 'cm',
+        highlight: false,
+      });
+    }
+    // 4. Wave Optics & Young Double Slit (Exp #17, #18, #30, #41)
+    else if (experiment.codeNumber === 30 || experiment.codeNumber === 17 || experiment.codeNumber === 18 || data.fringeSpacing !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'المسافة بين الأهداب', en: 'Fringe Spacing', ku: 'مەودای نێوان هێڵەکان', kmr: 'Mewdaya Xetan', bad: 'مەودایا ناڤبەرا هێلان' }),
+        symbol: 'Δy',
+        value: data.fringeSpacing !== undefined ? String(data.fringeSpacing) : '1.60',
+        unit: 'mm',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'المسافة بين الشقين', en: 'Slit Separation', ku: 'دووری نێوان درزەکان', kmr: 'Dûriya Navbera Qelşan', bad: 'دویریا ناڤبەرا درزان' }),
+        symbol: 'd',
+        value: String(params.slitDistance ?? 50),
+        unit: 'μm',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'زاوية الرتبة الأولى', en: 'First Order Angle', ku: 'گۆشەی پلەی یەکەم', kmr: 'Goşeya Pila Yekem', bad: 'گۆشەیا رێزا ئێکێ' }),
+        symbol: 'θ₁',
+        value: data.firstOrderAngle !== undefined ? String(data.firstOrderAngle) : '0.61',
+        unit: '°',
+        highlight: false,
+      });
+    }
+    // 5. Hooke's Law & Spring (Exp #25)
+    else if (experiment.codeNumber === 25 || data.restoringForce !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'قوة الإرجاع', en: 'Restoring Force', ku: 'هێزی گەڕێنەرەوە', kmr: 'Hêza Vegerandinê', bad: 'هێزا زڤراندنێ' }),
+        symbol: 'F',
+        value: data.restoringForce !== undefined ? String(data.restoringForce) : '-10.00',
+        unit: 'N',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'الزمن الدوري', en: 'Period', ku: 'کاتی خول', kmr: 'Dema Dorê', bad: 'دەمێ خولێ' }),
+        symbol: 'T',
+        value: data.period !== undefined ? String(data.period) : '1.99',
+        unit: 's',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'التردد', en: 'Frequency', ku: 'فریکوێنسی', kmr: 'Frîkans', bad: 'فریکوێنس' }),
+        symbol: 'f',
+        value: data.frequency !== undefined ? String(data.frequency) : '0.50',
+        unit: 'Hz',
+        highlight: false,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'طاقة الوضع المرونية', en: 'Elastic Potential Energy', ku: 'وزەی جێگیری لاستیکی', kmr: 'Enerjiya Potansiyel', bad: 'وزا جهگیر یا لاستیکی' }),
+        symbol: 'U',
+        value: data.potentialEnergy !== undefined ? String(data.potentialEnergy) : '1.00',
+        unit: 'J',
+        highlight: false,
+      });
+    }
+    // 6. Archimedes & Buoyancy (Exp #34)
+    else if (experiment.codeNumber === 34 || data.buoyantForce !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'قوة الدفع لأعلى', en: 'Buoyant Force', ku: 'هێزی سەرئێخەر', kmr: 'Hêza Zêdekirinê', bad: 'هێزا بلندکەر' }),
+        symbol: 'F_B',
+        value: data.buoyantForce !== undefined ? String(data.buoyantForce) : '19.60',
+        unit: 'N',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'الوزن الظاهري', en: 'Apparent Weight', ku: 'کێشی دیاریکراو', kmr: 'Giraniya Xuyayî', bad: 'کێشا دیارکری' }),
+        symbol: 'W_app',
+        value: data.apparentWeight !== undefined ? String(data.apparentWeight) : '29.40',
+        unit: 'N',
+        highlight: true,
+      });
+    }
+    // 7. Photoelectric Effect (Exp #68)
+    else if (experiment.codeNumber === 68 || data.stoppingVoltage !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'طاقة الحركة القصوى', en: 'Max Kinetic Energy', ku: 'ئەوپەڕی وزەی جووڵە', kmr: 'Enerjiya Livê ya Zêde', bad: 'بلندترین وزا لڤینێ' }),
+        symbol: 'E_k',
+        value: data.kineticEnergy !== undefined ? String(data.kineticEnergy) : '2.20',
+        unit: 'eV',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'جهد الإيقاف', en: 'Stopping Potential', ku: 'ڤۆڵتیەی ڕاگرتن', kmr: 'Voltaja Rawestandinê', bad: 'ڤۆلتییا راگرتنێ' }),
+        symbol: 'V₀',
+        value: data.stoppingVoltage !== undefined ? String(data.stoppingVoltage) : '2.20',
+        unit: 'V',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'طول موجة العتبة', en: 'Cutoff Wavelength', ku: 'درێژی شەپۆلی ئاستەنگ', kmr: 'Dirêjiya Pêla Krîtîk', bad: 'درێژیا پێلا رەخنەگر' }),
+        symbol: 'λ₀',
+        value: data.cutoffWavelength !== undefined ? String(data.cutoffWavelength) : '539.0',
+        unit: 'nm',
+        highlight: false,
+      });
+    }
+    // 8. Radioactive Decay (Exp #69)
+    else if (experiment.codeNumber === 69 || data.remainingNuclei !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'الأنوية المتبقية', en: 'Remaining Nuclei', ku: 'ناوکە ماوەکان', kmr: 'Navokên Mayî', bad: 'ناڤۆکێن ماین' }),
+        symbol: 'N',
+        value: data.remainingNuclei !== undefined ? String(data.remainingNuclei) : '200',
+        unit: 'nuclei',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'النسبة المتبقية', en: 'Remaining Fraction', ku: 'ڕێژەی ماوە', kmr: 'Rêjeya Mayî', bad: 'رێژەیا مای' }),
+        symbol: '%',
+        value: data.decayFraction !== undefined ? `${(Number(data.decayFraction) * 100).toFixed(1)}%` : '100.0%',
+        unit: '',
+        highlight: true,
+      });
+    }
+    // 9. Pendulum / Harmonic motion (Exp #22, #23)
+    else if (experiment.codeNumber === 22 || experiment.codeNumber === 23 || id.includes('pendulum') || id.includes('harmonic') || data.angularVelocity !== undefined) {
       const angleVal = data.angleDeg ?? (typeof data.angle === 'number' ? Number(((data.angle * 180) / Math.PI).toFixed(1)) : 0);
       list.push({
         label: getLocalizedText({ ar: 'زاوية الإزاحة', en: 'Angle', ku: 'گۆشە', kmr: 'Goşe', bad: 'گۆشەیا لادانێ' }),
@@ -198,6 +386,68 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
         symbol: 'f',
         value: data.frequency !== undefined ? String(data.frequency) : '0.00',
         unit: 'Hz',
+        highlight: false,
+      });
+    }
+    // 3. Projectile Motion (Exp 24)
+    else if (experiment.codeNumber === 24 || data.range !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'أقصى مدى أفقي', en: 'Range', ku: 'مەودای ئاسۆیی', kmr: 'Mewdaya Asêyî', bad: 'مەودایێ ئاسۆیی' }),
+        symbol: 'R',
+        value: data.range !== undefined ? String(data.range) : '0.00',
+        unit: 'm',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'أقصى ارتفاع', en: 'Max Height', ku: 'بەرزترین ئاست', kmr: 'Bilindiya Herî Zêde', bad: 'بلندترین ئاست' }),
+        symbol: 'H',
+        value: data.maxHeight !== undefined ? String(data.maxHeight) : '0.00',
+        unit: 'm',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'السرعة اللحظية', en: 'Instant Speed', ku: 'خێرایی کاتی', kmr: 'Leza Demkî', bad: 'لەزاتیا دەمکی' }),
+        symbol: 'v',
+        value: data.speed !== undefined ? String(data.speed) : '0.00',
+        unit: 'm/s',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'زمن التحليق', en: 'Flight Time', ku: 'کاتی فڕین', kmr: 'Dema Firînê', bad: 'دەمێ فرینێ' }),
+        symbol: 't_flight',
+        value: data.flightTime !== undefined ? String(data.flightTime) : '0.00',
+        unit: 's',
+        highlight: false,
+      });
+    }
+    // 4. Free Fall Kinematics (Exp 27)
+    else if (experiment.codeNumber === 27 || data.impactVelocity !== undefined) {
+      list.push({
+        label: getLocalizedText({ ar: 'الارتفاع الحالي', en: 'Current Height', ku: 'بەرزی ئێستا', kmr: 'Bilindiya Niha', bad: 'بلندیا نوکە' }),
+        symbol: 'y',
+        value: data.currentHeight !== undefined ? String(data.currentHeight) : '0.00',
+        unit: 'm',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'السرعة اللحظية', en: 'Velocity', ku: 'خێرایی', kmr: 'Lez', bad: 'لەزاتی' }),
+        symbol: 'v',
+        value: data.velocity !== undefined ? String(data.velocity) : '0.00',
+        unit: 'm/s',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'سرعة الاصطدام', en: 'Impact Velocity', ku: 'خێرایی پێکدادان', kmr: 'Leza Lêketinê', bad: 'لەزاتیا لێکدانێ' }),
+        symbol: 'v_impact',
+        value: data.impactVelocity !== undefined ? String(data.impactVelocity) : '0.00',
+        unit: 'm/s',
+        highlight: true,
+      });
+      list.push({
+        label: getLocalizedText({ ar: 'زمن الاصطدام', en: 'Impact Time', ku: 'کاتی پێکدادان', kmr: 'Dema Lêketinê', bad: 'دەمێ لێکدانێ' }),
+        symbol: 't_impact',
+        value: data.impactTime !== undefined ? String(data.impactTime) : '0.00',
+        unit: 's',
         highlight: false,
       });
     }
@@ -350,7 +600,7 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
     }
 
     return list;
-  }, [experiment, state.data, state.time, params, getLocalizedText]);
+  }, [experiment, state.data, state.time, params, getLocalizedText, liveOutputs]);
 
   // Map outputList metrics into GraphMetricOption array for RealtimeGraph variable selection
   const graphableMetrics = useMemo(() => {
@@ -396,6 +646,7 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
           {/* Main Visual Simulation Stage */}
           <SimulationViewport
             engine={engine}
+            experiment={experiment}
             parameters={params}
             isRunning={isRunning}
             simulationStatus={simulationStatus}
@@ -403,11 +654,15 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
             onPause={handlePause}
             onReset={handleReset}
             physicalLaw={experiment.physicalLaw}
+            onOutputsUpdate={handleOutputsUpdate}
           />
 
-          {/* Real-time Telemetry Line Plot Graph */}
+          {/* Phase 10.6 Scientific Whitelist Graph & Visualization */}
           <RealtimeGraph
+            experiment={experiment}
             time={state.time}
+            parameters={params}
+            liveOutputs={liveOutputs}
             metrics={graphableMetrics}
             isRunning={isRunning}
             color="#38bdf8"
@@ -418,6 +673,16 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
         <div className="lg:col-span-5 xl:col-span-4 space-y-5">
           {/* Experiment Sliders & Parameter Controls */}
           <ControlPanel
+            experiment={experiment}
+            currentParams={params}
+            onParamChange={(paramId, value) => handleParamChange(paramId, value)}
+            lang={language as 'ar' | 'en' | 'ku' | 'kmr' | 'bad'}
+            outputs={
+              (state.data?.outputs as Record<string, number>) ||
+              (state.data as Record<string, number>) ||
+              {}
+            }
+            onLogToNotebook={() => setActiveModal('notebook')}
             parametersSchema={experiment.parameters}
             values={params}
             onChange={handleParamChange}
@@ -427,17 +692,17 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
             onPause={handlePause}
             onReset={handleReset}
           />
-
-          {/* Real-Time Measurements & Calculated Outputs */}
-          <ResultsPanel
-            inputs={inputList}
-            outputs={outputList}
-            elapsedTime={state.time}
-            experimentTitle={getLocalizedText(experiment.title)}
-            experimentId={experiment.id}
-          />
         </div>
       </div>
+
+      {/* Phase 10.7 Experiment Trials Log & Scientific Comparison */}
+      <ExperimentLogPanel
+        experiment={experiment}
+        currentParams={params}
+        liveOutputs={liveOutputs}
+        elapsedTime={state.time}
+        onOpenNotebook={() => setActiveModal('notebook')}
+      />
 
       {/* Physics Theory & Scientific Explanation Section */}
       <TheoryPanel experiment={experiment} />
@@ -462,6 +727,10 @@ export const ExperimentPage: React.FC<ExperimentPageProps> = ({
         onClose={() => setActiveModal(null)}
         experimentId={experiment.id}
         experimentTitle={title}
+        experiment={experiment}
+        params={params}
+        outputs={liveOutputs}
+        elapsedTime={state.time}
       />
 
       <SymbolsConstantsModal
